@@ -26,7 +26,7 @@ Author URI: http://foliovision.com
 
       // Do an SSL check - only works on Apache
       global $is_IIS;
-      if( isset( $_SERVER['HTTPS'] ) && !$is_IIS ) $strUrl = str_replace( 'http://', 'https://', $strUrl );
+      if( isset( $_SERVER['HTTPS'] ) && !empty( $_SERVER['HTTPS'] ) && !$is_IIS ) $strUrl = str_replace( 'http://', 'https://', $strUrl );
 
       return $strUrl;
   }
@@ -98,7 +98,7 @@ Author URI: http://foliovision.com
    	return $orderby;
    }
    function version(){
-      return '1.10';
+      return '1.12';
    }
    
    function fv_testimonials_activate(){
