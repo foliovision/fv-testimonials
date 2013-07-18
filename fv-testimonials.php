@@ -3,7 +3,7 @@
 Plugin Name: FV Testimonials
 Plugin URI: http://foliovision.com
 Description: Management system for testimonials
-Version: 1.12
+Version: 1.0
 Author: Foliovision
 Author URI: http://foliovision.com
 */
@@ -26,7 +26,7 @@ Author URI: http://foliovision.com
 
       // Do an SSL check - only works on Apache
       global $is_IIS;
-      if( isset( $_SERVER['HTTPS'] ) && !$is_IIS ) $strUrl = str_replace( 'http://', 'https://', $strUrl );
+      if( isset( $_SERVER['HTTPS'] ) && !empty( $_SERVER['HTTPS'] ) && !$is_IIS ) $strUrl = str_replace( 'http://', 'https://', $strUrl );
 
       return $strUrl;
   }
@@ -37,7 +37,7 @@ Author URI: http://foliovision.com
   
 
   wp_register_style('FVTestimonialsStyleSheets2', GetUrlTestimonials() .'view/user.css');
-  //wp_enqueue_style( 'FVTestimonialsStyleSheets2');
+  wp_enqueue_style( 'FVTestimonialsStyleSheets2');
 
   if(is_admin()) {
      wp_register_script( 'FVTestimonials', GetUrlTestimonials() .'js/fv-testimonials.js' );
@@ -98,7 +98,7 @@ Author URI: http://foliovision.com
    	return $orderby;
    }
    function version(){
-      return '1.10';
+      return '1.0';
    }
    
    function fv_testimonials_activate(){
@@ -106,7 +106,7 @@ Author URI: http://foliovision.com
       $strVersion = version();
       
       if ( ( floatval($strInstall) >=  1.0 ) ) return;
-      //if ( defined('WP_ALLOW_MULTISITE') || constant ('WP_ALLOW_MULTISITE') === true ) return; // not for multisite, previous versions were not working there
+      if ( defined('WP_ALLOW_MULTISITE') || constant ('WP_ALLOW_MULTISITE') === true ) return; // not for multisite, previous versions were not working there
       if( 0 == strcmp( $strInstall, $strVersion ) ) return;  // db version is the same
       if( !$strInstall ) return; // nothing has been installed before, there's nothing to convert
       // do the conversion here:
@@ -123,23 +123,20 @@ Author URI: http://foliovision.com
          $converttestimonials = fv_testimonials_ajax_convert_testimonials();
          if (!$convertcategories || !$converttestimonials) wp_die( __('The conversion of testimonials failed!') );
          update_option( 'FPT_database', $strVersion );
-       $aTemplates = get_option( 'FPT_templates', true );  // get rid of that stupid double serialization!
+         $aTemplates = get_option( 'FPT_templates', true );  // get rid of that stupid double serialization!
          if (is_serialized( $aTemplates )) $aTemplates = unserialize($aTemplates);
          if (is_serialized( $aTemplates )) $aTemplates = unserialize($aTemplates);
          update_option( 'FPT_templates', $aTemplates );
         
          // moreover clean the database here
-         //global $wpdb;
-         //$wpdb->query("DROP TABLE wp_fpt_category,wp_fpt_images,wp_fpt_testimonials");
-      
+         global $wpdb;
+         $wpdb->query("DROP TABLE wp_fpt_category,wp_fpt_images,wp_fpt_testimonials");
 
-              
-         
+
          $posts_converted = fv_testimonials_ajax_convert_shortcodes_posts();
          $theme_converted = fv_testimonials_ajax_convert_shortcodes_theme();
-         //$db_converted    = fv_testimonials_ajax_convert_shortcodes_db();
          
-         if ( !$posts_converted || !$theme_converted)  wp_die( __('The conversion of shortcodes for FV Testimonials failed. Please rewrite your shortcodes manually, check the Testimonials Options Page for detailed description.') );
+         if ( !$posts_converted || !$theme_converted )  wp_die( __('The conversion of shortcodes for FV Testimonials failed. Please rewrite your shortcodes manually, check the Testimonials Options Page for detailed description.') );
       }
      
    }
