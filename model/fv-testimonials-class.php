@@ -148,7 +148,9 @@ class FV_Testimonials
          //      remove_filter( 'posts_orderby',  'fvt_filter_orderby' );
         
         $upload_dir = wp_upload_dir();
-        if (defined('WP_ALLOW_MULTISITE') &&  (constant ('WP_ALLOW_MULTISITE') === true)) $strImagePath = str_replace($_SERVER['DOCUMENT_ROOT'],'',$upload_dir['basedir']).'/testimonials';
+        if (defined('WP_ALLOW_MULTISITE') &&  (constant ('WP_ALLOW_MULTISITE') === true)) {
+          $strImagePath = str_replace($upload_dir['subdir'],'',$upload_dir['url']).'/testimonials';
+        }
         else $strImagePath =  $this->strImageRoot;
       
         $aOutputs = array();
@@ -236,13 +238,31 @@ class FV_Testimonials
                 
               }
                $iIndex = false;
-               if (!$aCustomOrder) $aCustomOrder = array();
-               if (!empty($aCustomOrder)) $iIndex = array_search($iPid, $aCustomOrder);
-               if (($iIndex  === false) && is_array($aOutputs)&& is_array($aCustomOrder)) $iIndex = max(max(array_keys($aCustomOrder)),max(array_keys($aOutputs)))+1;
-               if (($iIndex  === false) && is_array($aOutputs)&& is_array($aCustomOrder) && !empty($aCustomOrder)) $iIndex = max(max(array_keys($aCustomOrder)),max(array_keys($aOutputs)))+1;
-               else if (($iIndex  === false) && !empty($aOutputs)) $iIndex = max(array_keys($aOutputs))+1;
-               else if ($iIndex  === false) $iIndex = 0;
+
+               if( !$aCustomOrder )
+                  $aCustomOrder = array();
+
+               if( !empty( $aCustomOrder ) )
+                  $iIndex = array_search($iPid, $aCustomOrder);
+
+//                if( ( $iIndex  === false ) && is_array( $aOutputs ) && is_array( $aCustomOrder ) ) {
+//                   $iIndex = max( max( array_keys( $aCustomOrder ) ), max( array_keys( $aOutputs ) ) ) + 1;
+//                }
+/// kajo quickfix 20130903 because of errors
+/// ( the disgusting code that follows was already here, I just improved the conditions )
+
+               if( ( $iIndex  === false ) && is_array( $aOutputs ) && is_array( $aCustomOrder ) && !empty( $aCustomOrder ) && !empty( $aOutputs ) ) {
+                  $iIndex = max( max( array_keys( $aCustomOrder ) ), max( array_keys( $aOutputs ) ) ) + 1;
+               } elseif( ( $iIndex  === false ) && is_array( $aCustomOrder ) && !empty( $aCustomOrder ) && ( !is_array( $aOutputs ) || empty( $aOutputs ) ) ) {
+                  $iIndex = max( array_keys( $aCustomOrder ) ) + 1;
+               } elseif( ( $iIndex  === false ) && ( !is_array( $aCustomOrder ) || empty( $aCustomOrder ) ) && is_array( $aOutputs )  && !empty( $aOutputs ) )  {
+                  $iIndex = max( array_keys( $aOutputs ) ) + 1;
+               } elseif( $iIndex  === false ) {
+                  $iIndex = 0;
+               }
+
                $aOutputs[$iIndex] = $output;
+
             endwhile;
          }         
       }
@@ -303,7 +323,9 @@ class FV_Testimonials
          //      remove_filter( 'posts_orderby',  'fvt_filter_orderby' );
         
         $upload_dir = wp_upload_dir();
-        if (defined('WP_ALLOW_MULTISITE') &&  (constant ('WP_ALLOW_MULTISITE') === true)) $strImagePath = str_replace($_SERVER['DOCUMENT_ROOT'],'',$upload_dir['basedir']).'/testimonials';
+        if (defined('WP_ALLOW_MULTISITE') &&  (constant ('WP_ALLOW_MULTISITE') === true)) {
+          $strImagePath = str_replace($upload_dir['subdir'],'',$upload_dir['url']).'/testimonials';
+        }
         else $strImagePath =  $objTestimonials->strImageRoot;
       
         $aOutputs = array();
@@ -430,9 +452,11 @@ class FV_Testimonials
       $aImages = get_post_meta($post->ID, '_fvt_images',true);
       
       $upload_dir = wp_upload_dir();
-      if (defined('WP_ALLOW_MULTISITE') &&  (constant ('WP_ALLOW_MULTISITE') === true)) $strImagePath = str_replace($_SERVER['DOCUMENT_ROOT'],'',$upload_dir['basedir']).'/testimonials';
+      if (defined('WP_ALLOW_MULTISITE') &&  (constant ('WP_ALLOW_MULTISITE') === true)) {
+        $strImagePath = str_replace($upload_dir['subdir'],'',$upload_dir['url']).'/testimonials';
+      }
       else $strImagePath =  $this->strImageRoot;
-      
+
       if( $aImages && count( $aImages ) ){
          $strTemplate = preg_replace( '/\[no-images\][\s\S]*\[end-no-images\]/imU', '', $strTemplate );
       }else{
@@ -514,8 +538,10 @@ class FV_Testimonials
             $strText = $aTextImage[2];
 
             $aSubMatches = array();
+         
             if( preg_match( '/\[image\-link(?:\s+)(.+)\]/iU', $strText, $aSubMatches ) ){
-               $strReplace = '';//$aImages[$i]->GetURI( $aSubMatches[1] );
+               ///$strReplace = '';//$aImages[$i]->GetURI( $aSubMatches[1] );
+               $strReplace = $strImagePath.$aImages[$i][$aSubMatches[1]]['path'];           
                $strText = preg_replace( '/\[image\-link(?:\s+)(.+)\]/iU', $strReplace, $strText );
             }
 
