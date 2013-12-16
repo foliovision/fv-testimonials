@@ -48,6 +48,9 @@ For more detailed options for shortcode refer to our manual at http://foliovisio
 
 == Changelog ==
 
+= 1.12.1 =
+* Repaired slug creation for images
+
 = 1.12 =
 * Fixed few performance issues
 

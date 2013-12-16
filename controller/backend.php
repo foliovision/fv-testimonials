@@ -203,7 +203,14 @@ function fv_testimonials_save_testimonial($post_id) {
    $upload_dir = wp_upload_dir(); 
    if ($_POST['featured_testimonial']=='on') update_post_meta($post_id, '_fvt_featured', 1);
    else update_post_meta($post_id, '_fvt_featured', 0);
-   if (!$post->post_title) $strPostSlug = $post->ID; else $strPostSlug = sanitize_title($post->post_title);
+
+   if (!$post->post_title)
+      $strPostSlug = $post->ID;
+   else
+      $strPostSlug = sanitize_title($post->post_title);
+
+   $strPostSlug = preg_replace( '~[^a-zA-Z-_0-9]~', '', $strPostSlug );
+
    if ($_FILES['fileImage']['name']){
       if (defined('WP_ALLOW_MULTISITE') &&  (constant ('WP_ALLOW_MULTISITE') === true))
         if( !@is_dir( $upload_dir['basedir'].'/testimonials' ) ){ $objFVTMain->CreateImageFolders();}

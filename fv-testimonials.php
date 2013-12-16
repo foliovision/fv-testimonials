@@ -3,7 +3,7 @@
 Plugin Name: FV Testimonials
 Plugin URI: http://foliovision.com
 Description: Management system for testimonials
-Version: 1.12
+Version: 1.12.1
 Author: Foliovision
 Author URI: http://foliovision.com
 */
