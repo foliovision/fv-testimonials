@@ -48,6 +48,9 @@ For more detailed options for shortcode refer to our manual at http://foliovisio
 
 == Changelog ==
 
+= 1.12.2 =
+* Added possibility to to see the original image size or the image in list view
+
 = 1.12.1 =
 * Repaired slug creation for images
 

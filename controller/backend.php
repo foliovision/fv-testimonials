@@ -64,8 +64,11 @@ function fv_testimonials_custom_editing_metabox_display() {
     echo "> Make this testimonial featured</label></p>";
     $upload_dir = wp_upload_dir();
    
-   if (defined('WP_ALLOW_MULTISITE') &&  (constant ('WP_ALLOW_MULTISITE') === true)) $strPath = str_replace($_SERVER['DOCUMENT_ROOT'],'',$upload_dir['basedir']).'/testimonials';
-   else $strPath =  $objFVTMain->strImageRoot;
+    if (defined('WP_ALLOW_MULTISITE') &&  (constant ('WP_ALLOW_MULTISITE') === true)) {
+      $strPath = trailingslashit($upload_dir['baseurl']).'testimonials';
+    } else {
+      $strPath =  $objFVTMain->strImageRoot;
+    }
 	
 			
     echo '<table>';
@@ -131,21 +134,44 @@ function fvtpro_manage_testimonial_columns( $column, $post_id ) {
 			}
 			else _e( 'No Tags' );
 			break;
-    case 'testimonial_image' :
-	      $aImages = get_post_meta($post_id, '_fvt_images',true);
-	      $upload_dir = wp_upload_dir();
-         if (defined('WP_ALLOW_MULTISITE') &&  (constant ('WP_ALLOW_MULTISITE') === true)) $strPath = str_replace($_SERVER['DOCUMENT_ROOT'],'',$upload_dir['basedir']).'/testimonials';
-         else $strPath =  $objFVTMain->strImageRoot;
-			if ( !empty( $aImages[1] ) ) {
-				$out = "<img src='".$strPath.$aImages[1]['thumbs']['path']."' style='max-width:50px; max-height:50px;' />";
-			}
-			else if ( !empty( $aImages[2] ) ) {
-				$out = "<img src='".$strPath.$aImages[2]['thumbs']['path']."' style='max-width:50px; max-height:50px;' />";
-			}
-			else $out="";
-			echo $out;
-			break;
-    case 'testimonial_featured' :
+      case 'testimonial_image' :
+         $aImages = get_post_meta($post_id, '_fvt_images',true);
+         $upload_dir = wp_upload_dir();
+         $strBase = '';
+
+         if (defined('WP_ALLOW_MULTISITE') &&  (constant ('WP_ALLOW_MULTISITE') === true)){
+            $strPath = trailingslashit($upload_dir['baseurl']).'testimonials';
+            $strBase = $upload_dir['basedir'] . '/testimonials';
+         }else{
+            $strPath = $objFVTMain->strImageRoot;
+            $strBase = $_SERVER['DOCUMENT_ROOT'] . $objFVTMain->strImageRoot;
+         }
+
+         if( !empty( $aImages[1] ) ){
+            $aData = getimagesize( $strBase . $aImages[1]['original']['path'] );
+            $strTitle = 'full image';
+            if( $aData )
+               $strTitle = $aData[0] . ' x ' . $aData[1];
+
+            $out = '<a href="'.$strPath.$aImages[1]['original']['path'].'" target="_blank" title="'.$strTitle.'">';
+            $out .="<img src='".$strPath.$aImages[1]['thumbs']['path']."' style='max-width:50px; max-height:50px;' />";
+            $out .= "</a>";
+         }else if( !empty( $aImages[2] ) ){
+            $aData = getimagesize( $strBase . $aImages[2]['original']['path'] );
+            $strTitle = 'full image';
+            if( $aData )
+               $strTitle = $aData[0] . ' x ' . $aData[1];
+
+            $out = '<a href="'.$strPath.$aImages[2]['original']['path'].'" target="_blank" title="'.$strTitle.'">';
+            $out .= "<img src='".$strPath.$aImages[2]['thumbs']['path']."' style='max-width:50px; max-height:50px;' />";
+            $out .= "</a>";
+         }else
+            $out="";
+
+         echo $out;
+         break;
+
+      case 'testimonial_featured' :
 	      $strFeatured = get_post_meta($post_id, '_fvt_featured',true);
 			if ( $strFeatured == '1' ) {
 				$out = "Featured";

@@ -82,7 +82,7 @@
             $iIndex = false;
             if (!$aCustomOrder) $aCustomOrder = array();
             if (!empty($aCustomOrder)) $iIndex = array_search($id, $aCustomOrder);
-            if (($iIndex  === false) && is_array($aOutputs)&& is_array($aCustomOrder)) $iIndex = max(max(array_keys($aCustomOrder)),max(array_keys($aOutputs)))+1;
+            //if (($iIndex  === false) && is_array($aOutputs)&& is_array($aCustomOrder)) $iIndex = max(max(array_keys($aCustomOrder)),max(array_keys($aOutputs)))+1;
             if (($iIndex  === false) && is_array($aOutputs)&& is_array($aCustomOrder) && !empty($aCustomOrder)) $iIndex = max(max(array_keys($aCustomOrder)),max(array_keys($aOutputs)))+1;
             else if (($iIndex  === false) && !empty($aOutputs)) $iIndex = max(array_keys($aOutputs))+1;
             else if ($iIndex  === false) $iIndex = 0;
@@ -129,7 +129,7 @@
                  $iIndex = false;
                   if (!$aCustomOrder) $aCustomOrder = array();
                   if (!empty($aCustomOrder)) $iIndex = array_search($id, $aCustomOrder);
-                  if (($iIndex  === false) && is_array($aOutputs)&& is_array($aCustomOrder)) $iIndex = max(max(array_keys($aCustomOrder)),max(array_keys($aOutputs)))+1;
+                  //if (($iIndex  === false) && is_array($aOutputs)&& is_array($aCustomOrder)) $iIndex = max(max(array_keys($aCustomOrder)),max(array_keys($aOutputs)))+1;
                   if (($iIndex  === false) && is_array($aOutputs)&& is_array($aCustomOrder) && !empty($aCustomOrder)) $iIndex = max(max(array_keys($aCustomOrder)),max(array_keys($aOutputs)))+1;
                   else if (($iIndex  === false) && !empty($aOutputs)) $iIndex = max(array_keys($aOutputs))+1;
                   else if ($iIndex  === false) $iIndex = 0;

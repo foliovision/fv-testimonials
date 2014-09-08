@@ -17,14 +17,15 @@ function show_testimonials_handle( $atts ) {
       'offset' => 0,
       'image' => 'medium',
       'show' => '',
-      'length' => ''
+      'length' => '',
+      'orderby' => ''
       ), $atts ) );
 
 	$src = preg_replace('/\,/', '', $src);
 
 	$objTestimonials = new FV_Testimonials();
 //	$output = $objTestimonials->show_testimionials_all();
-	$output = $objTestimonials->show_testimonials($category, (int)$limit, $template, $image, $include, $exclude, $offset, $show, $length);
+	$output = $objTestimonials->show_testimonials($category, (int)$limit, $template, $image, $include, $exclude, $offset, $show, $length, $orderby);
 	 
    return $output;
 }

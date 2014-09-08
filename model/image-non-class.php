@@ -42,29 +42,36 @@ function FV_IsComplex( &$img, $aImageInfo ){
  * - transparent : Array with 'x' and 'y' as keys determining position of pixel with fully transparent color	 	 
  */
 function FV_CountUniqueColors( &$img, $iWidth, $iHeight, $bTransparency = false ){
-	if( !imageistruecolor( $img ) ) return false;
-	
-	$aColors = array();
-	$aTrans = array();
-	$aTrans['position'] = '';
-	
-	for( $i=0; $i<$iWidth; $i++ ){
-		for( $j=0; $j<$iHeight; $j++ ){
-			$iColor = imagecolorat( $img, $i, $j );
-			if( isset( $aColors[$iColor] ) ) $aColors[$iColor] += 1;
-			else $aColors[$iColor] = 1;
-			
-			if( $bTransparency ){
-				$iAlpha = ($iColor & 0x7F000000) >> 24;
-				if( 127 == $iAlpha ){
-					$aTrans['position'] = array( 'x' => $i, 'y' => $j );
-					$bTransparency = false;
-				}
-			}
-		}
-	}
-	
-	return array( 'colors' => count( $aColors ), 'transparent' => $aTrans['position'] );
+   if( !imageistruecolor( $img ) ) return false;
+   
+   $aColors = array();
+   $aTrans = array();
+   $aTrans['position'] = '';
+   
+   $iMemlimit = str_replace('M','',ini_get('memory_limit') )*1048576;
+   $iFreememBegin = ($iMemlimit - memory_get_usage());
+   for( $i=0; $i<$iWidth; $i++ ){
+      $freemem = ($iMemlimit - memory_get_usage());
+      //  if more than 50% of the picture was checked and the process took more than half of free memory, we can predict, that it won't end happy
+      if( $i > $iWidth/2 && $freemem < $iFreememBegin/2 )  {
+         echo "Running low with memory, skipping color resize optimization. Picture will be stored as true color PNG. ";
+         return array( 'colors' => count( $aColors ), 'transparent' => $aTrans['position'] );
+      }  
+      for( $j=0; $j<$iHeight; $j++ ){
+         $iColor = imagecolorat( $img, $i, $j );
+         if( isset( $aColors[$iColor] ) ) $aColors[$iColor] += 1;
+         else $aColors[$iColor] = 1;
+         
+         if( $bTransparency ){
+            $iAlpha = ($iColor & 0x7F000000) >> 24;
+            if( 127 == $iAlpha ){
+              $aTrans['position'] = array( 'x' => $i, 'y' => $j );
+              $bTransparency = false;
+            }
+         }
+      }
+   }	
+   return array( 'colors' => count( $aColors ), 'transparent' => $aTrans['position'] );
 }
 
 /**

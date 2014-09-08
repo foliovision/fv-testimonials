@@ -3,17 +3,21 @@
 Plugin Name: FV Testimonials
 Plugin URI: http://foliovision.com
 Description: Management system for testimonials
-Version: 1.12.1
+Version: 1.12.4
 Author: Foliovision
 Author URI: http://foliovision.com
 */
 
   DEFINE( 'FVTESTIMONIALS_ROOT', dirname( __FILE__ ) . '/' );
   
+  define( 'FV_TESTIMONIALS_POST_TYPE', 'testimonial');
+  define( 'FV_TESTIMONIALS_CAT_PREFIX', 'testimonial_category');
+  
   require( FVTESTIMONIALS_ROOT . 'model/fv-testimonials-class.php' );
   require_once( FVTESTIMONIALS_ROOT . 'controller/shortcodes.php' );
   require_once( FVTESTIMONIALS_ROOT . 'controller/backend.php' );
   require_once( FVTESTIMONIALS_ROOT . 'controller/conversions.php' );
+  //require_once( FVTESTIMONIALS_ROOT . 'controller/rewrite.php');
 
   // register_activation_hook( __FILE__, 'fv_testimonials_activate' );
   add_action('admin_init', 'fv_testimonials_activate');
@@ -32,7 +36,7 @@ Author URI: http://foliovision.com
   }
 
   $objFVTMain = new FV_Testimonials();
-  
+    
   add_action( 'plugins_loaded', array( &$objFVTMain, 'FVT_SaveAndLoadData' ) );
   
 
@@ -91,6 +95,18 @@ Author URI: http://foliovision.com
        'taxonomies' => array('testimonial_category','testimonial_tag')//, 'post_tag'
      ); 
      register_post_type('testimonial',$args);
+
+     register_taxonomy( FV_TESTIMONIALS_CAT_PREFIX, FV_TESTIMONIALS_POST_TYPE, array(
+      'hierarchical' => true,
+      'labels' => array(
+         'name' => __( 'Categories' ),
+         'singular_name' => __( 'Category' )
+      ),
+      'show_ui' => true,
+      'update_count_callback' => '_update_post_term_count',
+      'query_var' => true,
+      'rewrite' => array( 'slug' => FV_REWRITE_PREFIX, 'hierarchical' => true )
+   ));
    }
    
    function fvt_filter_orderby( $title,$strOrder ) {
@@ -98,7 +114,7 @@ Author URI: http://foliovision.com
    	return $orderby;
    }
    function version(){
-      return '1.12';
+      return '1.12.4';
    }
    
    function fv_testimonials_activate(){
@@ -144,5 +160,5 @@ Author URI: http://foliovision.com
      
    }
 
-
-?>
+   
+   

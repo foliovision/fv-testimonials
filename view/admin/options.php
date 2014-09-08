@@ -12,6 +12,10 @@ Buy PRO version now!
 <form action="<?php echo $_SERVER['REQUEST_URI']; ?>" method="post">
       <table>
          <tr>
+            <td class="clsTableLeft">Testimonials rewrite root: </td>
+            <td><input class="clsBig" type="text" name="tboxTestimonialsRoot" value="<?php echo $objFVTMain->rootUrl; ?>" /></td>
+         </tr>        
+         <tr>
             <td class="clsTableLeft">Path to post or page where all testimonials are inserted: </td>
             <td><input class="clsBig" type="text" name="tboxTestimonialPage" value="<?php echo $objFVTMain->strUrl; ?>" /></td>
          </tr>
