@@ -795,6 +795,10 @@ class FV_Testimonials
       if( '/' != $this->strImageRoot[0] ) $this->strImageRoot = '/' . $this->strImageRoot;
     }
 
+    $this->strMessage .= '<div class="updated">';
+
+    do_action( 'fv_handle_nicename' );
+
     $this->iWidthLarge = intval( $_POST['tboxLarge'] );
     $this->iWidthMedium = intval( $_POST['tboxMedium'] );
     $this->iWidthSmall = intval( $_POST['tboxSmall'] );
@@ -820,7 +824,7 @@ class FV_Testimonials
     $this->UpdateOption( self::OPTION_JPG, $this->iJPGQuality );
     $this->UpdateOption( self::OPTION_CSS, ($this->bOutputCSS) ? 'yes' : 'no' );
 
-    $this->strMessage .= '<p>Options updated !</p>';
+    $this->strMessage .= '<p>Options updated !</p></div>';
   }
   
   private function CheckFolders(){

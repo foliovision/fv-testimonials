@@ -8,9 +8,13 @@ Author: Foliovision
 Author URI: http://foliovision.com
 */
 
-  DEFINE( 'FVTESTIMONIALS_ROOT', dirname( __FILE__ ) . '/' );
-  
-  define( 'FV_TESTIMONIALS_POST_TYPE', 'testimonial');
+  if ( !defined('FVTESTIMONIALS_ROOT')) {
+    define( 'FVTESTIMONIALS_ROOT', dirname( __FILE__ ) . '/' );
+  }
+  if ( !defined('FV_TESTIMONIALS_POST_TYPE')) {
+    define( 'FV_TESTIMONIALS_POST_TYPE', 'testimonial');
+  }
+ 
   define( 'FV_TESTIMONIALS_CAT_PREFIX', 'testimonial_category');
   
   require( FVTESTIMONIALS_ROOT . 'model/fv-testimonials-class.php' );
@@ -40,24 +44,32 @@ Author URI: http://foliovision.com
   add_action( 'plugins_loaded', array( &$objFVTMain, 'FVT_SaveAndLoadData' ) );
   
 
-  wp_register_style('FVTestimonialsStyleSheets2', GetUrlTestimonials() .'view/user.css');
+ 
   //wp_enqueue_style( 'FVTestimonialsStyleSheets2');
 
-  if(is_admin()) {
-     wp_register_script( 'FVTestimonials', GetUrlTestimonials() .'js/fv-testimonials.js' );
-     wp_enqueue_script( 'FVTestimonials' );
-//      wp_register_style('FVTestimonialsStyleSheets', GetUrlTestimonials() .'view/admin.css');
-//      wp_enqueue_style( 'FVTestimonialsStyleSheets');
+
+  function register_fvt_scripts(){
+    if(is_admin()) {
+      wp_register_style('FVTestimonialsStyleSheets2', GetUrlTestimonials() .'view/user.css');
+      wp_register_script( 'FVTestimonials', GetUrlTestimonials() .'js/fv-testimonials.js' );
+      wp_enqueue_script( 'FVTestimonials' );
+  //      wp_register_style('FVTestimonialsStyleSheets', GetUrlTestimonials() .'view/admin.css');
+  //      wp_enqueue_style( 'FVTestimonialsStyleSheets');
       wp_register_style('FVTestimonialsStyleSheets3', GetUrlTestimonials() .'view/jquery-ui-tabs.css');
       wp_enqueue_style( 'FVTestimonialsStyleSheets3');
-      
+        
       wp_enqueue_script( 'jquery' );
       wp_enqueue_script( 'jquery-ui-core' );   
       wp_enqueue_script( 'jquery-ui-sortable' );
       wp_enqueue_script( 'jquery-ui-draggable' );
       wp_enqueue_script( 'jquery-ui-droppable' );
       wp_enqueue_script( 'jquery-ui-tabs' );
-   }
+    }
+  }
+
+  add_action('wp_enqueue_script','register_fvt_scripts');
+
+  
    
    add_action('init', 'fvt_custom_init',2);
    add_action('admin_init', 'fvt_custom_init',1);

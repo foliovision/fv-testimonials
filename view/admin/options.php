@@ -11,6 +11,7 @@ Buy PRO version now!
 <?php endif;?>
 <form action="<?php echo $_SERVER['REQUEST_URI']; ?>" method="post">
       <table>
+         <?php do_action('fv_render_nicename'); ?>
          <tr>
             <td class="clsTableLeft">Testimonials rewrite root: </td>
             <td><input class="clsBig" type="text" name="tboxTestimonialsRoot" value="<?php echo $objFVTMain->rootUrl; ?>" /></td>
@@ -46,6 +47,7 @@ Buy PRO version now!
             <td class="clsTableLeft">Output default CSS: </td>
             <td><input type="checkbox" name="chkCSS" value="yes"<?php if( $objFVTMain->bOutputCSS ) echo ' checked="checked"'; ?> /></td>
          </tr>
+
       </table>
       <div class="cmdButton"><input type="submit" class="button-primary" name="cmdSaveBasic" value="Save" /></div>
       <div style="clear: both;"></div>

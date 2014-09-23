@@ -12,7 +12,7 @@ add_action( 'add_meta_boxes', 'fv_testimonials_custom_editing_metabox');
 add_filter( 'manage_edit-testimonial_columns', 'fvtpro_edit_testimonial_columns' ) ;
 add_action( 'manage_testimonial_posts_custom_column', 'fvtpro_manage_testimonial_columns', 10, 2 );
 add_filter( 'post_updated_messages', 'fv_testimonials_updated_messages');
-add_action( 'save_post', 'fv_testimonials_save_testimonial' );
+add_action( 'edit_post', 'fv_testimonials_save_testimonial' );
 
 
 
@@ -224,11 +224,15 @@ function fv_testimonials_updated_messages( $messages ) {
   return $messages;
 }
 function fv_testimonials_save_testimonial($post_id) {
-   global $post;
-   global $objFVTMain;
-   $upload_dir = wp_upload_dir(); 
-   if ($_POST['featured_testimonial']=='on') update_post_meta($post_id, '_fvt_featured', 1);
-   else update_post_meta($post_id, '_fvt_featured', 0);
+  global $post;
+  global $objFVTMain;
+  $upload_dir = wp_upload_dir(); 
+  
+  if ( isset( $_POST[ 'featured_testimonial' ] ) && ( $_POST[ 'featured_testimonial' ] == 'on' ) ) {
+      update_post_meta( $post_id, '_fvt_featured', 1 );
+  }
+  
+  else update_post_meta($post_id, '_fvt_featured', 0);
 
    if (!$post->post_title)
       $strPostSlug = $post->ID;
