@@ -142,10 +142,11 @@ class FV_Testimonials
        $args['tax_query'] = array(array('taxonomy' => 'testimonial_category','field' => 'slug','terms' => $aCatSlugs));
       }
     }
+    
     $aCustomOrder = array();
     if( ($show == 'all')||($show == 'featured') || !empty($include) || ( count($aCategories) > 1 ) ) {
       $aCustomOrder = $this->aOrder[0];
-    } else {
+    } else if( isset($this->aOrder[$aCategories[0]]) ) {
       $aCustomOrder = $this->aOrder[$aCategories[0]];
     }
     
@@ -198,21 +199,21 @@ class FV_Testimonials
         $iPid = get_the_ID(); 
         $aImages = get_post_meta($iPid, '_fvt_images',true);
         $slug = basename(get_permalink());
-        if ($template) {
+        if( $template && isset($this->aTemplates[$template]) ) {
           $output = $this->ParseTemplate(stripslashes($this->aTemplates[$template]['content']), $aImages, $image, $testimonyTaxamony) . $strOutput;
         } else {
           $output .= '<div class="clsTestimonial"><h2><a name="'.$slug.'">'.get_the_title().'</a></h2>';
           $strImageTitle = get_the_title();
           
           
-          if ($aImages[1] && $aImages[1]['original']['name']) {
+          if( isset($aImages[1]) && $aImages[1] && $aImages[1]['original']['name']) {
            $strImageTitle = $aImages[1]['original']['name'];
-          } else if ($aImages[2] && $aImages[2]['original']['name']) {
+          } else if( isset($aImages[2]) && $aImages[2] && $aImages[2]['original']['name']) {
            $strImageTitle = $aImages[2]['original']['name'];
           }
-          if ($aImages[1]) {
+          if( isset($aImages[1]) && $aImages[1]) {
            $output .= '<h5 class="left"><img src="'.$strImagePath.$aImages[1][$image]['path'].'" /><br />'.$strImageTitle.'</h5>';
-          } else if ($aImages[2]) {
+          } else if( isset($aImages[2]) && $aImages[2]) {
            $output .= '<h5 class="left"><img src="'.$strImagePath.$aImages[2][$image]['path'].'" /><br />'.$strImageTitle.'</h5>';
           }
           $output .= '<div class="clsFPTContent">';
@@ -270,21 +271,22 @@ class FV_Testimonials
        
        $aImages = get_post_meta($iPid, '_fvt_images',true);
        $slug = basename(get_permalink());
-       if ($template) {
+       
+       if( $template && isset($this->aTemplates[$template]) ) {
         $output .= $this->ParseTemplate(stripslashes($this->aTemplates[$template]['content']), $aImages, $image, $testimonyTaxamony);
        } else {
         $output .= '<div class="clsTestimonial">
         <h2><a name="'.$slug.'">'.get_the_title().'</a></h2>';
         $strImageTitle = get_the_title();
-        if( $aImages[1] && $aImages[1]['original']['name'] ) {
+        if( isset($aImages[1]) && $aImages[1] && $aImages[1]['original']['name'] ) {
           $strImageTitle = $aImages[1]['original']['name'];
-        } else if ($aImages[2] && $aImages[2]['original']['name']) {
+        } else if( isset($aImages[2]) && $aImages[2] && $aImages[2]['original']['name']) {
           $strImageTitle = $aImages[2]['original']['name'];
         }
         
-        if( $aImages[1] ) {
+        if( isset($aImages[1]) && $aImages[1] ) {
           $output .= '<h5 class="left"><img src="'.$strImagePath.$aImages[1][$image]['path'].'" /><br />'.$strImageTitle.'</h5>';
-        } else if ($aImages[2]) {
+        } else if( isset($aImages[2]) && $aImages[2] ) {
           $output .= '<h5 class="left"><img src="'.$strImagePath.$aImages[2][$image]['path'].'" /><br />'.$strImageTitle.'</h5>';
         }
         $output .= '<div class="clsFPTContent">';
@@ -299,7 +301,7 @@ class FV_Testimonials
        }
        $iIndex = false;
        
-       if( !$aCustomOrder ) {
+       if( !isset($aCustomOrder) || !$aCustomOrder ) {
         $aCustomOrder = array();
        }
        
@@ -313,11 +315,11 @@ class FV_Testimonials
        /// kajo quickfix 20130903 because of errors
        /// ( the disgusting code that follows was already here, I just improved the conditions )
        
-       if( ( $iIndex  === false ) && is_array( $aOutputs ) && is_array( $aCustomOrder ) && !empty( $aCustomOrder ) && !empty( $aOutputs ) ) {
+       if( ( $iIndex  === false ) && isset($aOutputs) && is_array( $aOutputs ) && is_array( $aCustomOrder ) && !empty( $aCustomOrder ) && !empty( $aOutputs ) ) {
         $iIndex = max( max( array_keys( $aCustomOrder ) ), max( array_keys( $aOutputs ) ) ) + 1;
        } elseif( ( $iIndex  === false ) && is_array( $aCustomOrder ) && !empty( $aCustomOrder ) && ( !is_array( $aOutputs ) || empty( $aOutputs ) ) ) {
         $iIndex = max( array_keys( $aCustomOrder ) ) + 1;
-       } elseif( ( $iIndex  === false ) && ( !is_array( $aCustomOrder ) || empty( $aCustomOrder ) ) && is_array( $aOutputs )  && !empty( $aOutputs ) )  {
+       } elseif( ( $iIndex  === false ) && ( !is_array( $aCustomOrder ) || empty( $aCustomOrder ) ) && isset($aOutputs) && is_array( $aOutputs )  && !empty( $aOutputs ) )  {
         $iIndex = max( array_keys( $aOutputs ) ) + 1;
        } elseif( $iIndex  === false ) {
         $iIndex = 0;
