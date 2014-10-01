@@ -47,7 +47,8 @@ Buy PRO version now!
             <td class="clsTableLeft">Output default CSS: </td>
             <td><input type="checkbox" name="chkCSS" value="yes"<?php if( $objFVTMain->bOutputCSS ) echo ' checked="checked"'; ?> /></td>
          </tr>
-
+         <?php do_action('fv_testimonials_pro_custom'); ?>
+         
       </table>
       <div class="cmdButton"><input type="submit" class="button-primary" name="cmdSaveBasic" value="Save" /></div>
       <div style="clear: both;"></div>

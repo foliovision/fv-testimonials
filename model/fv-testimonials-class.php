@@ -799,7 +799,7 @@ class FV_Testimonials
 
     $this->strMessage .= '<div class="updated">';
 
-    do_action( 'fv_handle_nicename' );
+    do_action( 'fv_testimonials_pro_save_options' );
 
     $this->iWidthLarge = intval( $_POST['tboxLarge'] );
     $this->iWidthMedium = intval( $_POST['tboxMedium'] );

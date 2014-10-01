@@ -81,8 +81,10 @@ function fv_testimonials_custom_editing_metabox_display() {
       echo '<tr><td>Second Image:</td><td><input type="file" name="fileImage2" id="fileImage2" /></td><td>Image Title: <input type="text" name="fileTitle2" id="fileTitle2" value="'.$aImages[2]['original']['name'].'" /></td><td>';
     else echo '<tr><td>Second Image:</td><td><input type="file" name="fileImage2" id="fileImage2" /></td><td>Image Title: <input type="text" name="fileTitle2" id="fileTitle2" value="" /></td><td>';
     if ( $aImages && $aImages[2] ) echo '<span id="fvt-image-2">Image present: <img src="'.$strPath.$aImages[2]['small']['path'].'" style="max-width: 50px; max-height:50px;"/><input type="button" value="Delete" class="fpt-del-button" onclick="FVTDeleteImage( '.$post_ID.', 2 )" /></span>';
-    echo'</td></tr>';      
-    echo '</table>';      
+    echo'</td></tr>';
+    echo '</table>';
+
+    do_action('fv_testimonial_pro_post_custom');
 }
 
 function fvtpro_edit_testimonial_columns( $columns ) {
@@ -227,6 +229,8 @@ function fv_testimonials_save_testimonial($post_id) {
   global $post;
   global $objFVTMain;
   $upload_dir = wp_upload_dir(); 
+  
+  do_action('fv_testimonial_pro_save_testimonial');
   
   if ( isset( $_POST[ 'featured_testimonial' ] ) && ( $_POST[ 'featured_testimonial' ] == 'on' ) ) {
       update_post_meta( $post_id, '_fvt_featured', 1 );
