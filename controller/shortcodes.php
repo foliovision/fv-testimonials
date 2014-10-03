@@ -18,7 +18,7 @@ function show_testimonials_handle( $atts ) {
         'show' => '',
         'length' => '',
         'orderby' => ''
-        ), $atts )
+        ), $atts, 'testimonials' )
   );
   
   $objTestimonials = new FV_Testimonials();
