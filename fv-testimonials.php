@@ -49,7 +49,16 @@ function GetUrlTestimonials() {
 $objFVTMain = new FV_Testimonials();
 
 add_action( 'plugins_loaded', array( &$objFVTMain, 'FVT_SaveAndLoadData' ) );
+add_filter('plugin_action_links', 'fv_testimonials_plugin_action_links', 10, 2);
 
+function fv_testimonials_plugin_action_links($links, $file) {
+  	$plugin_file = basename(__FILE__);
+  	if (basename($file) == $plugin_file) {
+      $settings_link =  '<a href="'.site_url('wp-admin/edit.php?post_type=testimonial').'">Testimonials</a>';
+  		array_unshift($links, $settings_link);
+  	}
+  	return $links;
+}
 
 
 //wp_enqueue_style( 'FVTestimonialsStyleSheets2');
