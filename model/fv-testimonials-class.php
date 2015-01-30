@@ -41,11 +41,11 @@ class FV_Testimonials
   const OPTION_TEMPLATES = 'FPT_templates';
   const OPTION_DATABASE = 'FPT_database';
 
-	/**
-	 * Constructor.
-	 */
-	function FV_Testimonials()
-	{
+  /**
+   * Constructor.
+   */
+  function FV_Testimonials()
+  {
     $this->rootUrl = strval( get_option( self::OPTION_ROOT ) );
     $this->strUrl = strval( get_option( self::OPTION_URL ) );
     $this->iWidthLarge = intval( get_option( self::OPTION_LARGE ) );
@@ -72,9 +72,9 @@ class FV_Testimonials
     $this->aSizes['small'] = $this->iWidthSmall;
     $this->aSizes['thumbs'] = $this->iWidthThumbs;
     
-	}
-	
-	public function CheckOptions(){
+  }
+  
+  public function CheckOptions(){
     if( !$this->iWidthLarge ) $this->iWidthLarge = 1024;
     if( !$this->iWidthMedium ) $this->iWidthMedium = 300;
     if( !$this->iWidthSmall ) $this->iWidthSmall = 150;
@@ -95,9 +95,9 @@ class FV_Testimonials
       if (defined('WP_ALLOW_MULTISITE') &&  (constant ('WP_ALLOW_MULTISITE') === true)) $strImagePath = str_replace($_SERVER['DOCUMENT_ROOT'],'',$upload_dir['basedir']).'/testimonials';
       else $strImagePath =  $this->strImageRoot;
     
-    foreach( $posts_array as $post ) :	setup_postdata($post); 
+    foreach( $posts_array as $post ) :  setup_postdata($post); 
       $aImages = get_post_meta($post->ID, '_fvt_main_image',true);
-	     $output .= '<div class="clsTestimonial">
+       $output .= '<div class="clsTestimonial">
                  <a name="'.$post->slug.'"><h2>'.get_the_title().'</h2></a>';
       if ($aImages) $output .= '<h5 class="left"><img src="'.$strImagePath.$aImages['medium']['path'].'" /><br />'.get_the_title().'</h5>';
       $output .='<div class="clsFPTContent">'.get_the_content().'</div>
@@ -108,248 +108,308 @@ class FV_Testimonials
     return $output;
   }
                              //$category,       $limit,      $template,    $featured, $   image,            $include,      $exclude,      $offset,      $show,      $length
-  public function show_testimonials($category = '', $iLimit = 0, $template = 0,$image = 'medium', $include = '', $exclude = '', $offset = 0, $show = '', $length='', $orderby = '') {
-   global $post;
-   $old_post = $post;
+  public function show_testimonials($category = '', $iLimit = 0, $template = 0,$image = 'medium', $include = false, $exclude = '', $offset = 0, $show = '', $length='', $orderby = '') {
+    global $post;
+    $old_post = $post;
+    
+    $strOutput = '';
+    $aExclude = explode(',', $exclude );
+    foreach($aExclude as $i=>$e) $aExclude[$i] = (int)$e;
+    
+    $aInclude = false;
+    if( is_int($include) ) {
+      $aInclude = array( (int)$include );
+    } else if( $include ) {
+      $aInclude = explode(',', $include );
+      foreach($aInclude as $i=>$e) $aInclude[$i] = (int)$e;
+    }
    
-   $strOutput = '';
-   $aExclude = explode(',', $exclude );
-   foreach($aExclude as $i=>$e) $aExclude[$i] = (int)$e;
-   $aInclude = explode(',', $include );
-   foreach($aInclude as $i=>$e) $aInclude[$i] = (int)$e;
-   if($include && !$aInclude) $aInclude[] = (int)$include;
-   
-   
-   $args = array('post_type' => 'testimonial');
-   if( (!empty( $category )) || ($show == 'all') || ($show == 'featured') ) {
-    if( $category ) { 
-      $aCategories = explode(',',$category);
-      $aCatSlugs = array();
-      foreach( $aCategories as $catID ) { 
-       $cat = get_term_by('slug', $catID, 'testimonial_category' ); 
-       if( !$cat ) {
-        $cat = get_term_by('name', $catID, 'testimonial_category' );
-       }
-       
-       if( !$cat ) {
-        $cat = get_term_by('id', (int)$catID, 'testimonial_category' );
-       }
-       if( $cat ) {
-        $aCatSlugs[] = $cat->slug;
-       }
+    
+    $args = array('post_type' => 'testimonial');
+    if( !$aInclude || !empty( $category ) || ($show == 'all') || ($show == 'featured') ) {
+      if( $category ) { 
+        $aCategories = explode(',',$category);
+        $aCatSlugs = array();
+        foreach( $aCategories as $catID ) { 
+         $cat = get_term_by('slug', $catID, 'testimonial_category' ); 
+         if( !$cat ) {
+          $cat = get_term_by('name', $catID, 'testimonial_category' );
+         }
+         
+         if( !$cat ) {
+          $cat = get_term_by('id', (int)$catID, 'testimonial_category' );
+         }
+         if( $cat ) {
+          $aCatSlugs[] = $cat->slug;
+         }
+        }
+        if( $aCatSlugs ) {
+         $args['tax_query'] = array(array('taxonomy' => 'testimonial_category','field' => 'slug','terms' => $aCatSlugs));
+        }
       }
-      if( $aCatSlugs ) {
-       $args['tax_query'] = array(array('taxonomy' => 'testimonial_category','field' => 'slug','terms' => $aCatSlugs));
-      }
-    }
-    
-    $aCustomOrder = array();
-    if( ($show == 'all')||($show == 'featured') || !empty($include) || ( count($aCategories) > 1 ) ) {
-      $aCustomOrder = $this->aOrder[0];
-    } else if( isset($this->aOrder[$aCategories[0]]) ) {
-      $aCustomOrder = $this->aOrder[$aCategories[0]];
-    }
-    
-    if(!$aCustomOrder) {
-      $aCustomOrder = $this->aOrder[0];
-    }
-    
-    $args['post_status'] = 'publish';
-    
-    if($aExclude) {               
-      $args['post__not_in'] = $aExclude;
-    }
-    
-    if($show == 'featured') {   
-      $args['meta_key'] = '_fvt_featured'; 
-      $args['meta_value'] = '1'; 
-    }
-    
-    if( $orderby ) {
-      $args['orderby'] = $orderby;
-    }
-    
-    $args['posts_per_page'] = -1;
-    //        if ($args['customorder']) add_filter( 'posts_orderby', 'fvt_filter_orderby',10,2);  // this doesn't work very well, especially if we have draft testimonial
-    $post_query = new WP_Query($args);
-    //      remove_filter( 'posts_orderby',  'fvt_filter_orderby' );
-    
-    $upload_dir = wp_upload_dir();
-    if (defined('WP_ALLOW_MULTISITE') &&  (constant ('WP_ALLOW_MULTISITE') === true)) {
-      $strImagePath = str_replace($upload_dir['subdir'],'',$upload_dir['url']).'/testimonials';
-    } else {
-      $strImagePath =  $this->strImageRoot;
-    }
-    
-    $aOutputs = array();
-    if( $post_query->have_posts() ) {
-      //prepare taxamony for all testimonies
-      if( $template ) {
-       $testim_object_ids = array();
-       foreach ($post_query->posts as $value) {
-        if (($value->post_status == 'publish')&&($value->post_type == 'testimonial')) {
-          $testim_object_ids[] = $value->ID;
-        }
-       }
-       $testimonyTaxamony = wp_get_object_terms($testim_object_ids,'testimonial_category',array('orderby' => 'name', 'order' => 'ASC', 'fields' => 'all_with_object_id'));
-      } 
-      while ($post_query->have_posts()) : $post_query->the_post();
-       if (($post->post_status == 'publish')&&($post->post_type == 'testimonial')) { 
-        $output = '';
-        $iPid = get_the_ID(); 
-        $aImages = get_post_meta($iPid, '_fvt_images',true);
-        $slug = basename(get_permalink());
-        if( $template && isset($this->aTemplates[$template]) ) {
-          $output = $this->ParseTemplate(stripslashes($this->aTemplates[$template]['content']), $aImages, $image, $testimonyTaxamony) . $strOutput;
-        } else {
-          $output .= '<div class="clsTestimonial"><h2><a name="'.$slug.'">'.get_the_title().'</a></h2>';
-          $strImageTitle = get_the_title();
-          
-          
-          if( isset($aImages[1]) && $aImages[1] && $aImages[1]['original']['name']) {
-           $strImageTitle = $aImages[1]['original']['name'];
-          } else if( isset($aImages[2]) && $aImages[2] && $aImages[2]['original']['name']) {
-           $strImageTitle = $aImages[2]['original']['name'];
-          }
-          if( isset($aImages[1]) && $aImages[1]) {
-           $output .= '<h5 class="left"><img src="'.$strImagePath.$aImages[1][$image]['path'].'" /><br />'.$strImageTitle.'</h5>';
-          } else if( isset($aImages[2]) && $aImages[2]) {
-           $output .= '<h5 class="left"><img src="'.$strImagePath.$aImages[2][$image]['path'].'" /><br />'.$strImageTitle.'</h5>';
-          }
-          $output .= '<div class="clsFPTContent">';
-          if ('excerpt' == $length) {
-           $output .= get_the_excerpt();
-          } else {
-           $output .= get_the_content();
-          }
-          $output .= '</div><div style="clear: both"></div>
-          </div>';
-        }
-        $iIndex = false;
-        
-        if (!$aCustomOrder) {
-          $aCustomOrder = array();
-        }
-        if (!empty($aCustomOrder)) {
-          $iIndex = array_search($iPid, $aCustomOrder);
-        }
-        if (($iIndex  === false) && is_array($aOutputs)&& is_array($aCustomOrder) && count($aCustomOrder) > 0 && count($aOutputs) > 0 ) {
-          $iIndex = max(max(array_keys($aCustomOrder)),(count($aOutputs)>0? max(array_keys($aOutputs)):0))+1;
-        }
-        
-        if (($iIndex  === false) && is_array($aOutputs)&& is_array($aCustomOrder) && !empty($aCustomOrder) ) {
-          $iIndex = max(max(array_keys($aCustomOrder)),(count($aOutputs)>0? max(array_keys($aOutputs)):0))+1;
-        } else if (($iIndex  === false) && !empty($aOutputs)) {
-          $iIndex = max(array_keys($aOutputs))+1;
-        } else if ($iIndex  === false) {
-          $iIndex = 0;
-        }
-        
-        $aOutputs[$iIndex] = $output;
-       }
-      endwhile;
-    }
-   }
-   
-   if ($aInclude){ 
-    $post_query = new WP_Query( array( 'post_type' => 'testimonial', 'post__in' => $aInclude ) );
-    
-    if( $post_query->have_posts() ) {
-      //prepare taxamony for all testimonies
-      if ($template) {
-       $testim_object_ids = array();
-       foreach ($post_query->posts as $value) {
-        if( ($value->post_status == 'publish')&&($value->post_type == 'testimonial') ) {
-          $testim_object_ids[] = $value->ID;
-        }
-       }
-       $testimonyTaxamony = wp_get_object_terms($testim_object_ids,'testimonial_category',array('orderby' => 'name', 'order' => 'ASC', 'fields' => 'all_with_object_id'));
-      } 
-      while ($post_query->have_posts()) : $post_query->the_post(); 
-       $output = '';
-       $iPid = get_the_ID();
-       
-       $aImages = get_post_meta($iPid, '_fvt_images',true);
-       $slug = basename(get_permalink());
-       
-       if( $template && isset($this->aTemplates[$template]) ) {
-        $output .= $this->ParseTemplate(stripslashes($this->aTemplates[$template]['content']), $aImages, $image, $testimonyTaxamony);
-       } else {
-        $output .= '<div class="clsTestimonial">
-        <h2><a name="'.$slug.'">'.get_the_title().'</a></h2>';
-        $strImageTitle = get_the_title();
-        if( isset($aImages[1]) && $aImages[1] && $aImages[1]['original']['name'] ) {
-          $strImageTitle = $aImages[1]['original']['name'];
-        } else if( isset($aImages[2]) && $aImages[2] && $aImages[2]['original']['name']) {
-          $strImageTitle = $aImages[2]['original']['name'];
-        }
-        
-        if( isset($aImages[1]) && $aImages[1] ) {
-          $output .= '<h5 class="left"><img src="'.$strImagePath.$aImages[1][$image]['path'].'" /><br />'.$strImageTitle.'</h5>';
-        } else if( isset($aImages[2]) && $aImages[2] ) {
-          $output .= '<h5 class="left"><img src="'.$strImagePath.$aImages[2][$image]['path'].'" /><br />'.$strImageTitle.'</h5>';
-        }
-        $output .= '<div class="clsFPTContent">';
-        if ('excerpt' == $length) {
-          $output .= get_the_excerpt();
-        } else {
-          $output .= apply_filters('the_content', get_the_content() );
-        }
-        $output .= '</div><div style="clear: both"></div>
-        </div>';
-       
-       }
-       $iIndex = false;
-       
-       if( !isset($aCustomOrder) || !$aCustomOrder ) {
-        $aCustomOrder = array();
-       }
-       
-       if( !empty( $aCustomOrder ) ) {
-        $iIndex = array_search($iPid, $aCustomOrder);
-       }
-       
-       //                if( ( $iIndex  === false ) && is_array( $aOutputs ) && is_array( $aCustomOrder ) ) {
-       //                   $iIndex = max( max( array_keys( $aCustomOrder ) ), max( array_keys( $aOutputs ) ) ) + 1;
-       //                }
-       /// kajo quickfix 20130903 because of errors
-       /// ( the disgusting code that follows was already here, I just improved the conditions )
-       
-       if( ( $iIndex  === false ) && isset($aOutputs) && is_array( $aOutputs ) && is_array( $aCustomOrder ) && !empty( $aCustomOrder ) && !empty( $aOutputs ) ) {
-        $iIndex = max( max( array_keys( $aCustomOrder ) ), max( array_keys( $aOutputs ) ) ) + 1;
-       } elseif( ( $iIndex  === false ) && is_array( $aCustomOrder ) && !empty( $aCustomOrder ) && ( !is_array( $aOutputs ) || empty( $aOutputs ) ) ) {
-        $iIndex = max( array_keys( $aCustomOrder ) ) + 1;
-       } elseif( ( $iIndex  === false ) && ( !is_array( $aCustomOrder ) || empty( $aCustomOrder ) ) && isset($aOutputs) && is_array( $aOutputs )  && !empty( $aOutputs ) )  {
-        $iIndex = max( array_keys( $aOutputs ) ) + 1;
-       } elseif( $iIndex  === false ) {
-        $iIndex = 0;
-       }
-       
-       $aOutputs[$iIndex] = $output;
       
-      endwhile;
-    }         
-   }
-   
-   if( $aOutputs ) {
-    ksort($aOutputs); // reorder testimonials according to the custom order!
-   }
-   if( $iLimit && ($iLimit > 0) ) $iCount = $iLimit;
-   if( $aOutputs ) {
-    foreach( $aOutputs as $out ) { 
-      if( ($iLimit == 0) || ($iCount > 0) ) {
-       $strOutput .= $out;
+      $aCustomOrder = array();
+      if( ($show == 'all')||($show == 'featured') || !empty($include) || ( count($aCategories) > 1 ) ) {
+        $aCustomOrder = $this->aOrder[0];
+      } else if( isset($this->aOrder[$aCategories[0]]) ) {
+        $aCustomOrder = $this->aOrder[$aCategories[0]];
       }
-      else {}//continue;
-      if( $iLimit > 0) {
-       $iCount--;
+      
+      if(!$aCustomOrder) {
+        $aCustomOrder = $this->aOrder[0];
+      }
+      
+      $args['post_status'] = 'publish';
+      
+      if($aExclude) {               
+        $args['post__not_in'] = $aExclude;
+      }
+      
+      if($show == 'featured') {   
+        $args['meta_key'] = '_fvt_featured'; 
+        $args['meta_value'] = '1'; 
+      }
+      
+      if( $orderby ) {
+        $args['orderby'] = $orderby;
+      }
+      
+      $args['posts_per_page'] = -1;
+      //        if ($args['customorder']) add_filter( 'posts_orderby', 'fvt_filter_orderby',10,2);  // this doesn't work very well, especially if we have draft testimonial
+if( isset($_GET['martinv']) ) {
+  var_dump($args);
+  die();
+}
+      $post_query = new WP_Query($args);
+      //      remove_filter( 'posts_orderby',  'fvt_filter_orderby' );
+      
+      $upload_dir = wp_upload_dir();
+      if (defined('WP_ALLOW_MULTISITE') &&  (constant ('WP_ALLOW_MULTISITE') === true)) {
+        $strImagePath = str_replace($upload_dir['subdir'],'',$upload_dir['url']).'/testimonials';
+      } else {
+        $strImagePath =  $this->strImageRoot;
+      }
+      
+      $aOutputs = array();
+      if( $post_query->have_posts() ) {
+        //prepare taxamony for all testimonies
+        if( $template ) {
+          $testim_object_ids = array();
+          foreach ($post_query->posts as $value) {
+            if (($value->post_status == 'publish')&&($value->post_type == 'testimonial')) {
+              $testim_object_ids[] = $value->ID;
+            }
+          }
+          $testimonyTaxamony = wp_get_object_terms($testim_object_ids,'testimonial_category',array('orderby' => 'name', 'order' => 'ASC', 'fields' => 'all_with_object_id'));
+        }
+        
+        while ($post_query->have_posts()) :
+          $post_query->the_post();
+          
+          if (($post->post_status == 'publish')&&($post->post_type == 'testimonial')) { 
+            $output = '';
+
+            $aImages = get_post_meta(get_the_ID(), '_fvt_images',true);
+            $thumbnail_id = get_post_thumbnail_id( get_the_ID() ); 
+            if( !$aImages && $thumbnail_id ) {
+              $aImageData = wp_prepare_attachment_for_js($thumbnail_id);
+              
+              $aImageThumbnail = wp_get_attachment_image_src( $thumbnail_id );
+              $aImageMedium = wp_get_attachment_image_src( $thumbnail_id, 'medium' );
+              $aImageLarge = wp_get_attachment_image_src( $thumbnail_id, 'large' );
+              $aImageOriginal = wp_get_attachment_image_src( $thumbnail_id, 'full' );
+              
+              $aSizes = array(
+                                'thumbs' => array(
+                                  'path' => $aImageThumbnail[0],
+                                  'width' => $aImageThumbnail[1],
+                                  'height' => $aImageThumbnail[2]
+                                ),
+                                'small' => array(
+                                  'path' => $aImageThumbnail[0],
+                                  'width' => $aImageThumbnail[1],
+                                  'height' => $aImageThumbnail[2]
+                                ),                                   
+                                'medium' => array(
+                                  'path' => $aImageMedium[0],
+                                  'width' => $aImageMedium[1],
+                                  'height' => $aImageMedium[2]
+                                ),
+                                'large' => array(
+                                  'path' => $aImageLarge[0],
+                                  'width' => $aImageLarge[1],
+                                  'height' => $aImageLarge[2]
+                                ),                                
+                                'original' => array(
+                                  'path' => $aImageOriginal[0],
+                                  'width' => $aImageOriginal[1],
+                                  'height' => $aImageOriginal[2],
+                                  'name' => $aImageData['caption']
+                                )                                            
+                              );
+              $aImages = array( 1 => $aSizes );
+            } else {
+              foreach( $aImages AS $k => $v ) {
+                foreach( $v AS $size => $data ) {
+                  $aImages[$k][$size]['path'] = $strImagePath.$aImages[$k][$size]['path'];
+                }
+              }
+              
+            }
+            
+            $slug = basename(get_permalink());
+            if( $template && isset($this->aTemplates[$template]) ) {
+              $output = $this->ParseTemplate(stripslashes($this->aTemplates[$template]['content']), $aImages, $image, $testimonyTaxamony) . $strOutput;
+            } else {
+              $output .= '<div class="clsTestimonial"><h2><a name="'.$slug.'">'.get_the_title().'</a></h2>';
+              $strImageTitle = get_the_title();
+              
+              
+              if( isset($aImages[1]) && $aImages[1] && $aImages[1]['original']['name']) {
+                $strImageTitle = $aImages[1]['original']['name'];
+              } else if( isset($aImages[2]) && $aImages[2] && $aImages[2]['original']['name']) {
+                $strImageTitle = $aImages[2]['original']['name'];
+              }
+              if( isset($aImages[1]) && $aImages[1]) {
+                $output .= '<h5 class="left"><img src="'.$aImages[1][$image]['path'].'" /><br />'.$strImageTitle.'</h5>';
+              } else if( isset($aImages[2]) && $aImages[2]) {
+                $output .= '<h5 class="left"><img src="'.$aImages[2][$image]['path'].'" /><br />'.$strImageTitle.'</h5>';
+              }
+              $output .= '<div class="clsFPTContent">';
+              if ('excerpt' == $length) {
+                $output .= get_the_excerpt();
+              } else {
+                $output .= get_the_content();
+              }
+              $output .= '</div><div style="clear: both"></div>
+              </div>';
+            }
+            $iIndex = false;
+            
+            if (!$aCustomOrder) {
+              $aCustomOrder = array();
+            }
+            if (!empty($aCustomOrder)) {
+              $iIndex = array_search(get_the_ID(), $aCustomOrder);
+            }
+            if (($iIndex  === false) && is_array($aOutputs)&& is_array($aCustomOrder) && count($aCustomOrder) > 0 && count($aOutputs) > 0 ) {
+              $iIndex = max(max(array_keys($aCustomOrder)),(count($aOutputs)>0? max(array_keys($aOutputs)):0))+1;
+            }
+            
+            if (($iIndex  === false) && is_array($aOutputs)&& is_array($aCustomOrder) && !empty($aCustomOrder) ) {
+              $iIndex = max(max(array_keys($aCustomOrder)),(count($aOutputs)>0? max(array_keys($aOutputs)):0))+1;
+            } else if (($iIndex  === false) && !empty($aOutputs)) {
+              $iIndex = max(array_keys($aOutputs))+1;
+            } else if ($iIndex  === false) {
+              $iIndex = 0;
+            }
+            
+            $aOutputs[$iIndex] = $output;
+            
+          }
+          
+        endwhile;
       }
     }
-   }
-   $post  = $old_post;
-   setup_postdata($post);
-   
-   return $strOutput;
+    
+    if ($aInclude){ 
+      $post_query = new WP_Query( array( 'post_type' => 'testimonial', 'post__in' => $aInclude ) );
+      
+      if( $post_query->have_posts() ) {
+        //prepare taxamony for all testimonies
+        if ($template) {
+          $testim_object_ids = array();
+          foreach ($post_query->posts as $value) {
+            if( ($value->post_status == 'publish')&&($value->post_type == 'testimonial') ) {
+              $testim_object_ids[] = $value->ID;
+            }
+          }
+          $testimonyTaxamony = wp_get_object_terms($testim_object_ids,'testimonial_category',array('orderby' => 'name', 'order' => 'ASC', 'fields' => 'all_with_object_id'));
+        } 
+        while ($post_query->have_posts()) : $post_query->the_post(); 
+          $output = '';
+          
+          $aImages = get_post_meta(get_the_ID(), '_fvt_images',true);
+          $slug = basename(get_permalink());
+          
+          if( $template && isset($this->aTemplates[$template]) ) {
+            $output .= $this->ParseTemplate(stripslashes($this->aTemplates[$template]['content']), $aImages, $image, $testimonyTaxamony);
+          } else {
+            $output .= '<div class="clsTestimonial">
+            <h2><a name="'.$slug.'">'.get_the_title().'</a></h2>';
+            $strImageTitle = get_the_title();
+            if( isset($aImages[1]) && $aImages[1] && $aImages[1]['original']['name'] ) {
+              $strImageTitle = $aImages[1]['original']['name'];
+            } else if( isset($aImages[2]) && $aImages[2] && $aImages[2]['original']['name']) {
+              $strImageTitle = $aImages[2]['original']['name'];
+            }
+            
+            if( isset($aImages[1]) && $aImages[1] ) {
+              $output .= '<h5 class="left"><img src="'.$strImagePath.$aImages[1][$image]['path'].'" /><br />'.$strImageTitle.'</h5>';
+            } else if( isset($aImages[2]) && $aImages[2] ) {
+              $output .= '<h5 class="left"><img src="'.$strImagePath.$aImages[2][$image]['path'].'" /><br />'.$strImageTitle.'</h5>';
+            }
+            $output .= '<div class="clsFPTContent">';
+            if ('excerpt' == $length) {
+              $output .= get_the_excerpt();
+            } else {
+              $output .= apply_filters('the_content', get_the_content() );
+            }
+            $output .= '</div><div style="clear: both"></div>
+            </div>';
+          
+          }
+          $iIndex = false;
+          
+          if( !isset($aCustomOrder) || !$aCustomOrder ) {
+            $aCustomOrder = array();
+          }
+          
+          if( !empty( $aCustomOrder ) ) {
+            $iIndex = array_search(get_the_ID(), $aCustomOrder);
+          }
+          
+          //                if( ( $iIndex  === false ) && is_array( $aOutputs ) && is_array( $aCustomOrder ) ) {
+          //                   $iIndex = max( max( array_keys( $aCustomOrder ) ), max( array_keys( $aOutputs ) ) ) + 1;
+          //                }
+          /// kajo quickfix 20130903 because of errors
+          /// ( the disgusting code that follows was already here, I just improved the conditions )
+          
+          if( ( $iIndex  === false ) && isset($aOutputs) && is_array( $aOutputs ) && is_array( $aCustomOrder ) && !empty( $aCustomOrder ) && !empty( $aOutputs ) ) {
+            $iIndex = max( max( array_keys( $aCustomOrder ) ), max( array_keys( $aOutputs ) ) ) + 1;
+          } elseif( ( $iIndex  === false ) && is_array( $aCustomOrder ) && !empty( $aCustomOrder ) && ( !is_array( $aOutputs ) || empty( $aOutputs ) ) ) {
+            $iIndex = max( array_keys( $aCustomOrder ) ) + 1;
+          } elseif( ( $iIndex  === false ) && ( !is_array( $aCustomOrder ) || empty( $aCustomOrder ) ) && isset($aOutputs) && is_array( $aOutputs )  && !empty( $aOutputs ) )  {
+            $iIndex = max( array_keys( $aOutputs ) ) + 1;
+          } elseif( $iIndex  === false ) {
+            $iIndex = 0;
+          }
+          
+          $aOutputs[$iIndex] = $output;
+        
+        endwhile;
+      }         
+    }
+    
+    if( $aOutputs ) {
+      ksort($aOutputs); // reorder testimonials according to the custom order!
+    }
+    if( $iLimit && ($iLimit > 0) ) $iCount = $iLimit;
+    if( $aOutputs ) {
+      foreach( $aOutputs as $out ) { 
+        if( ($iLimit == 0) || ($iCount > 0) ) {
+          $strOutput .= $out;
+        }
+        else {}//continue;
+        if( $iLimit > 0) {
+          $iCount--;
+        }
+      }
+    }
+    $post  = $old_post;
+    setup_postdata($post);
+    
+    return $strOutput;
   }/**/
   
   
@@ -403,8 +463,8 @@ class FV_Testimonials
       $aOutputs = array();
       if( $post_query->have_posts() ) {
         //prepare taxamony for all testimonies
-      	if ($template) {
-      		$testim_object_ids = array();
+        if ($template) {
+          $testim_object_ids = array();
           foreach ($post_query->posts as $value) {
             if (($value->post_status == 'publish')&&($value->post_type == 'testimonial')) {
               $testim_object_ids[] = $value->ID;
@@ -469,9 +529,9 @@ class FV_Testimonials
     if( $aInclude ) { 
       $post_query = new WP_Query( array( 'post_type' => 'testimonial', 'post__in' => $aInclude ) );
       if( $post_query->have_posts() ) {
-      	//prepare taxamony for all testimonies
-      	if ($template) {
-      		$testim_object_ids = array();
+        //prepare taxamony for all testimonies
+        if ($template) {
+          $testim_object_ids = array();
           foreach ($post_query->posts as $value) {
             if (($value->post_status == 'publish')&&($value->post_type == 'testimonial')) {
               $testim_object_ids[] = $value->ID;
@@ -546,7 +606,7 @@ class FV_Testimonials
   
   
   
-  private function ParseTemplate( $strTemplate, $aImages, $strSize = 'original' , $testimonyTaxamony = null ) {
+  private function ParseTemplate( $strTemplate, $aImages = false, $strSize = 'original' , $testimonyTaxamony = null ) {
     global $post;
     
     $strTitle = get_the_title();
@@ -555,8 +615,11 @@ class FV_Testimonials
     $strExcerpt = get_the_excerpt();
     $tags = get_the_terms( $post->ID, 'testimonial_tag' );
     $strTags = '';
-    if ($tags) foreach($tags as $tag) $strTags .= $tag->name . ', '; 
-    $aImages = get_post_meta($post->ID, '_fvt_images',true);
+    if ($tags) foreach($tags as $tag) $strTags .= $tag->name . ', ';
+  
+    if( !$aImages ) {
+      $aImages = get_post_meta($post->ID, '_fvt_images',true);
+    }
     
     $upload_dir = wp_upload_dir();
     if (defined('WP_ALLOW_MULTISITE') &&  (constant ('WP_ALLOW_MULTISITE') === true)) {
@@ -687,11 +750,11 @@ class FV_Testimonials
         if( preg_match( '/\[image\-link(?:\s+)(.+)\]/iU', $strText, $aSubMatches ) ){
               
           ///$strReplace = '';//$aImages[$i]->GetURI( $aSubMatches[1] );
-          $strReplace = $strImagePath.$aImages[$i][$aSubMatches[1]]['path'];       
+          $strReplace = $aImages[$i][$aSubMatches[1]]['path'];       
           $strText = preg_replace( '/\[image\-link(?:\s+)(.+)\]/iU', $strReplace, $strText );        
         }
 
-        $strText = preg_replace( '/\[image\-path\]/i', $strImagePath.$aImages[$i][$strSize]['path'], $strText );
+        $strText = preg_replace( '/\[image\-path\]/i', $aImages[$i][$strSize]['path'], $strText );
         if( $aImages[$i]['original']['name'] ) {
           $strImageName = $aImages[$i]['original']['name'];
         } else {

@@ -1,4 +1,5 @@
 <?php
+if( isset($_GET['martnv'])) die('debug1');
 
 require_once( FVTESTIMONIALS_ROOT . 'model/fv-testimonials-class.php' );
 add_shortcode('testimonials', 'show_testimonials_handle');
@@ -24,5 +25,5 @@ function show_testimonials_handle( $atts ) {
   $objTestimonials = new FV_Testimonials();
   $output = $objTestimonials->show_testimonials($category, (int)$limit, $template, $image, $include, $exclude, $offset, $show, $length, $orderby);
   
-  return $output;
+  return '<div class="fv-testimonials-shortcode">'.$output.'</div>';
 }

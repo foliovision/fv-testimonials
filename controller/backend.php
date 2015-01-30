@@ -167,8 +167,9 @@ function fvtpro_manage_testimonial_columns( $column, $post_id ) {
             $out = '<a href="'.$strPath.$aImages[2]['original']['path'].'" target="_blank" title="'.$strTitle.'">';
             $out .= "<img src='".$strPath.$aImages[2]['thumbs']['path']."' style='max-width:50px; max-height:50px;' />";
             $out .= "</a>";
-         }else
-            $out="";
+         }else {
+            $out = get_the_post_thumbnail( $post_id );
+         }
 
          echo $out;
          break;
