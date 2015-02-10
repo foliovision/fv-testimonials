@@ -70,19 +70,21 @@ function fv_testimonials_custom_editing_metabox_display() {
       $strPath =  $objFVTMain->strImageRoot;
     }
 	
-			
-    echo '<table>';
-    if ($aImages && $aImages[1])
-       echo '<tr><td>Main image:</td><td><input type="file" name="fileImage" id="fileImage" /></td><td>Image Title: <input type="text" name="fileTitle" id="fileTitle" value="'.$aImages[1]['original']['name'].'"/></td><td>';
-    else echo '<tr><td>Main image:</td><td><input type="file" name="fileImage" id="fileImage" /></td><td>Image Title: <input type="text" name="fileTitle" id="fileTitle" value=""/></td><td>';
-    if ( $aImages && $aImages[1] ) echo '<span id="fvt-image-1">Image present: <img src="'.$strPath.$aImages[1]['small']['path'].'" style="max-width: 50px; max-height:50px;"/> <input type="button" value="Delete" class="fpt-del-button" onclick="FVTDeleteImage( '.$post_ID.', 1 )" /></span>';
-    echo'</td></tr>';      
-    if ($aImages && $aImages[2])
-      echo '<tr><td>Second Image:</td><td><input type="file" name="fileImage2" id="fileImage2" /></td><td>Image Title: <input type="text" name="fileTitle2" id="fileTitle2" value="'.$aImages[2]['original']['name'].'" /></td><td>';
-    else echo '<tr><td>Second Image:</td><td><input type="file" name="fileImage2" id="fileImage2" /></td><td>Image Title: <input type="text" name="fileTitle2" id="fileTitle2" value="" /></td><td>';
-    if ( $aImages && $aImages[2] ) echo '<span id="fvt-image-2">Image present: <img src="'.$strPath.$aImages[2]['small']['path'].'" style="max-width: 50px; max-height:50px;"/><input type="button" value="Delete" class="fpt-del-button" onclick="FVTDeleteImage( '.$post_ID.', 2 )" /></span>';
-    echo'</td></tr>';
-    echo '</table>';
+		if( !empty($aImages) ){
+      echo '<table>';
+      if ($aImages && $aImages[1])
+         echo '<tr><td>Main image:</td><td><input type="file" name="fileImage" id="fileImage" /></td><td>Image Title: <input type="text" name="fileTitle" id="fileTitle" value="'.$aImages[1]['original']['name'].'"/></td><td>';
+      else echo '<tr><td>Main image:</td><td><input type="file" name="fileImage" id="fileImage" /></td><td>Image Title: <input type="text" name="fileTitle" id="fileTitle" value=""/></td><td>';
+      if ( $aImages && $aImages[1] ) echo '<span id="fvt-image-1">Image present: <img src="'.$strPath.$aImages[1]['small']['path'].'" style="max-width: 50px; max-height:50px;"/> <input type="button" value="Delete" class="fpt-del-button" onclick="FVTDeleteImage( '.$post_ID.', 1 )" /></span>';
+      echo'</td></tr>';      
+      if ($aImages && $aImages[2])
+        echo '<tr><td>Second Image:</td><td><input type="file" name="fileImage2" id="fileImage2" /></td><td>Image Title: <input type="text" name="fileTitle2" id="fileTitle2" value="'.$aImages[2]['original']['name'].'" /></td><td>';
+      else echo '<tr><td>Second Image:</td><td><input type="file" name="fileImage2" id="fileImage2" /></td><td>Image Title: <input type="text" name="fileTitle2" id="fileTitle2" value="" /></td><td>';
+      if ( $aImages && $aImages[2] ) echo '<span id="fvt-image-2">Image present: <img src="'.$strPath.$aImages[2]['small']['path'].'" style="max-width: 50px; max-height:50px;"/><input type="button" value="Delete" class="fpt-del-button" onclick="FVTDeleteImage( '.$post_ID.', 2 )" /></span>';
+      echo'</td></tr>';
+      echo '</table>';
+      echo "<p>You are using legacy function for testimonial images. We strongly recoment to <strong>use Featured Image</strong> instead.</p>";
+    }
 
     do_action('fv_testimonial_pro_post_custom');
 }
