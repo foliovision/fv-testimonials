@@ -48,6 +48,9 @@ For more detailed options for shortcode refer to our manual at http://foliovisio
 
 == Changelog ==
 
+= 1.12.6 =
+* Fixed testimonial ordering in backend
+
 = 1.12.2 =
 * Added possibility to to see the original image size or the image in list view
 

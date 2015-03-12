@@ -3,7 +3,7 @@
 Plugin Name: FV Testimonials
 Plugin URI: http://foliovision.com
 Description: Management system for testimonials
-Version: 1.12.5
+Version: 1.12.6
 Author: Foliovision
 Author URI: http://foliovision.com
 */
@@ -65,7 +65,6 @@ function fv_testimonials_plugin_action_links($links, $file) {
 
 
 function register_fvt_scripts() {
-  if(is_admin()) {
     wp_register_style('FVTestimonialsStyleSheets2', GetUrlTestimonials() .'view/user.css');
     wp_register_script( 'FVTestimonials', GetUrlTestimonials() .'js/fv-testimonials.js' );
     wp_enqueue_script( 'FVTestimonials' );
@@ -80,10 +79,9 @@ function register_fvt_scripts() {
     wp_enqueue_script( 'jquery-ui-draggable' );
     wp_enqueue_script( 'jquery-ui-droppable' );
     wp_enqueue_script( 'jquery-ui-tabs' );
-  }
 }
 
-add_action('wp_enqueue_script','register_fvt_scripts');
+add_action('admin_enqueue_scripts','register_fvt_scripts');
 
 
 
