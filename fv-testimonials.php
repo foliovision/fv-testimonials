@@ -3,7 +3,7 @@
 Plugin Name: FV Testimonials
 Plugin URI: http://foliovision.com
 Description: Management system for testimonials
-Version: 1.12.6
+Version: 1.12.7
 Author: Foliovision
 Author URI: http://foliovision.com
 */
@@ -145,15 +145,9 @@ function fvt_filter_orderby( $title,$strOrder ) {
   return $orderby;
 }
 
-if( !function_exists('version') ) :
-  function version(){
-    return '1.12.5';
-  }
-endif;
-
 function fv_testimonials_activate() {
   $strInstall = get_option( 'FPT_database', true );
-  $strVersion = version();
+  $strVersion = '1.12.7';
   
   if( ( floatval($strInstall) >=  1.0 ) ) {
     return;

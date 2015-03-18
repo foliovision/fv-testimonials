@@ -44,8 +44,8 @@ function fvt_testimonials_submenu_page_callback_options2() {
 }
 
  function fvt_testimonials_submenu_page_callback_cats() {
-      global $objFVTMain;
-      $aCategories = get_terms('testimonial_category', array('hide_empty'=>0));
+    global $objFVTMain;
+    $aCategories = get_terms('testimonial_category', array('hide_empty'=>0));
    	require( FVTESTIMONIALS_ROOT . 'view/admin/by-category.php' );
    }
    
@@ -170,7 +170,7 @@ function fvtpro_manage_testimonial_columns( $column, $post_id ) {
             $out .= "<img src='".$strPath.$aImages[2]['thumbs']['path']."' style='max-width:50px; max-height:50px;' />";
             $out .= "</a>";
          }else {
-            $out = get_the_post_thumbnail( $post_id );
+            $out = get_the_post_thumbnail( $post_id,  'thumbnail' );
          }
 
          echo $out;
@@ -204,7 +204,7 @@ function custom_backend_columns() {
 		 </style>';
 }
 
-add_action('admin_head', 'custom_backend_columns');
+//add_action('admin_head', 'custom_backend_columns');
 
 function fv_testimonials_updated_messages( $messages ) {
   global $post, $post_ID;
