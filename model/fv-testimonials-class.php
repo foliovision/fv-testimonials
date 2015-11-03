@@ -176,10 +176,7 @@ class FV_Testimonials
       
       $args['posts_per_page'] = -1;
       //        if ($args['customorder']) add_filter( 'posts_orderby', 'fvt_filter_orderby',10,2);  // this doesn't work very well, especially if we have draft testimonial
-if( isset($_GET['martinv']) ) {
-  var_dump($args);
-  die();
-}
+
       $post_query = new WP_Query($args);
       //      remove_filter( 'posts_orderby',  'fvt_filter_orderby' );
       
