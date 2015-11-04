@@ -731,6 +731,7 @@ class FV_Testimonials
       }
            
 
+      $strSizeRequested = $strSize;
       foreach( $aMatches as $aTextImage ) {
         $i = intval( $aTextImage[1] );
         if( !$i ) {
@@ -748,7 +749,10 @@ class FV_Testimonials
               
           ///$strReplace = '';//$aImages[$i]->GetURI( $aSubMatches[1] );
           $strReplace = $aImages[$i][$aSubMatches[1]]['path'];       
-          $strText = preg_replace( '/\[image\-link(?:\s+)(.+)\]/iU', $strReplace, $strText );        
+          $strText = preg_replace( '/\[image\-link(?:\s+)(.+)\]/iU', $strReplace, $strText );
+          $strSize = $aSubMatches[1];
+        } else {
+          $strSize = $strSizeRequested;
         }
 
         $strText = preg_replace( '/\[image\-path\]/i', $aImages[$i][$strSize]['path'], $strText );
