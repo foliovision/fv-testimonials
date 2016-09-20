@@ -245,7 +245,7 @@ class FV_Testimonials
                                 )                                            
                               );
               $aImages = array( 1 => $aSizes );
-            } else {
+            } elseif ($aImages) {
               foreach( $aImages AS $k => $v ) {
                 foreach( $v AS $size => $data ) {
                   $aImages[$k][$size]['path'] = $strImagePath.$aImages[$k][$size]['path'];
