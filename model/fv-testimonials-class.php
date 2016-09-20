@@ -108,7 +108,7 @@ class FV_Testimonials
     return $output;
   }
                              //$category,       $limit,      $template,    $featured, $   image,            $include,      $exclude,      $offset,      $show,      $length
-  public function show_testimonials($category = '', $iLimit = 0, $template = 0,$image = 'medium', $include = false, $exclude = '', $offset = 0, $show = '', $length='', $orderby = '') {
+  public function show_testimonials($category = '', $iLimit = 0, $template = 0,$image, $include = false, $exclude = '', $offset = 0, $show = '', $length='', $orderby = '') {
     global $post;
     $old_post = $post;
     
@@ -124,9 +124,15 @@ class FV_Testimonials
       foreach($aInclude as $i=>$e) $aInclude[$i] = (int)$e;
     }
    
-    
+    $upload_dir = wp_upload_dir();
+    if (defined('WP_ALLOW_MULTISITE') &&  (constant ('WP_ALLOW_MULTISITE') === true)) {
+      $strImagePath = str_replace($upload_dir['subdir'],'',$upload_dir['url']).'/testimonials';
+    } else {
+      $strImagePath =  $this->strImageRoot;
+    }
     $args = array('post_type' => 'testimonial');
     if( !$aInclude || !empty( $category ) || ($show == 'all') || ($show == 'featured') ) {
+      $image = 'large';
       if( $category ) { 
         $aCategories = explode(',',$category);
         $aCatSlugs = array();
@@ -179,13 +185,6 @@ class FV_Testimonials
 
       $post_query = new WP_Query($args);
       //      remove_filter( 'posts_orderby',  'fvt_filter_orderby' );
-      
-      $upload_dir = wp_upload_dir();
-      if (defined('WP_ALLOW_MULTISITE') &&  (constant ('WP_ALLOW_MULTISITE') === true)) {
-        $strImagePath = str_replace($upload_dir['subdir'],'',$upload_dir['url']).'/testimonials';
-      } else {
-        $strImagePath =  $this->strImageRoot;
-      }
       
       $aOutputs = array();
       if( $post_query->have_posts() ) {
@@ -255,13 +254,13 @@ class FV_Testimonials
             }
             
             $slug = basename(get_permalink());
+            $permalink = get_permalink();
             if( $template && isset($this->aTemplates[$template]) ) {
               $output = $this->ParseTemplate(stripslashes($this->aTemplates[$template]['content']), $aImages, $image, $testimonyTaxamony) . $strOutput;
             } else {
-              $output .= '<div class="clsTestimonial"><h2><a name="'.$slug.'">'.get_the_title().'</a></h2>';
+              $output .= '<div class="clsTestimonial"><h2><a name="'.$slug.'" href="'.$permalink.'">'.get_the_title().'</a></h2>';
               $strImageTitle = get_the_title();
-              
-              
+
               if( isset($aImages[1]) && $aImages[1] && $aImages[1]['original']['name']) {
                 $strImageTitle = $aImages[1]['original']['name'];
               } else if( isset($aImages[2]) && $aImages[2] && $aImages[2]['original']['name']) {
@@ -309,7 +308,8 @@ class FV_Testimonials
       }
     }
     
-    if ($aInclude){ 
+    if ($aInclude){
+      $image = 'original';
       $post_query = new WP_Query( array( 'post_type' => 'testimonial', 'post__in' => $aInclude ) );
       
       if( $post_query->have_posts() ) {
@@ -327,13 +327,60 @@ class FV_Testimonials
           $output = '';
           
           $aImages = get_post_meta(get_the_ID(), '_fvt_images',true);
+          $thumbnail_id = get_post_thumbnail_id( get_the_ID() ); 
+          if( !$aImages && $thumbnail_id ) {
+            $aImageData = wp_prepare_attachment_for_js($thumbnail_id);
+            
+            $aImageThumbnail = wp_get_attachment_image_src( $thumbnail_id );
+            $aImageMedium = wp_get_attachment_image_src( $thumbnail_id, 'medium' );
+            $aImageLarge = wp_get_attachment_image_src( $thumbnail_id, 'large' );
+            $aImageOriginal = wp_get_attachment_image_src( $thumbnail_id, 'full' );
+            
+            $aSizes = array(
+                              'thumbs' => array(
+                                'path' => $aImageThumbnail[0],
+                                'width' => $aImageThumbnail[1],
+                                'height' => $aImageThumbnail[2]
+                              ),
+                              'small' => array(
+                                'path' => $aImageThumbnail[0],
+                                'width' => $aImageThumbnail[1],
+                                'height' => $aImageThumbnail[2]
+                              ),                                   
+                              'medium' => array(
+                                'path' => $aImageMedium[0],
+                                'width' => $aImageMedium[1],
+                                'height' => $aImageMedium[2]
+                              ),
+                              'large' => array(
+                                'path' => $aImageLarge[0],
+                                'width' => $aImageLarge[1],
+                                'height' => $aImageLarge[2]
+                              ),                                
+                              'original' => array(
+                                'path' => $aImageOriginal[0],
+                                'width' => $aImageOriginal[1],
+                                'height' => $aImageOriginal[2],
+                                'name' => $aImageData['caption']
+                              )                                            
+                            );
+            $aImages = array( 1 => $aSizes );
+          } elseif ($aImages) {
+            foreach( $aImages AS $k => $v ) {
+              foreach( $v AS $size => $data ) {
+                $aImages[$k][$size]['path'] = $strImagePath.$aImages[$k][$size]['path'];
+              }
+            }
+            
+          }
+
           $slug = basename(get_permalink());
           
           if( $template && isset($this->aTemplates[$template]) ) {
             $output .= $this->ParseTemplate(stripslashes($this->aTemplates[$template]['content']), $aImages, $image, $testimonyTaxamony);
           } else {
-            $output .= '<div class="clsTestimonial">
-            <h2><a name="'.$slug.'">'.get_the_title().'</a></h2>';
+            $output .= '<div class="clsTestimonial">';
+            //<h2><a name="'.$slug.'">'.get_the_title().'</a></h2>';
             $strImageTitle = get_the_title();
             if( isset($aImages[1]) && $aImages[1] && $aImages[1]['original']['name'] ) {
               $strImageTitle = $aImages[1]['original']['name'];
@@ -342,9 +389,9 @@ class FV_Testimonials
             }
             
             if( isset($aImages[1]) && $aImages[1] ) {
-              $output .= '<h5 class="left"><img src="'.$strImagePath.$aImages[1][$image]['path'].'" /><br />'.$strImageTitle.'</h5>';
+              $output .= '<h5 class="left"><img src="'.$aImages[1][$image]['path'].'" /><br />'.$strImageTitle.'</h5>';
             } else if( isset($aImages[2]) && $aImages[2] ) {
-              $output .= '<h5 class="left"><img src="'.$strImagePath.$aImages[2][$image]['path'].'" /><br />'.$strImageTitle.'</h5>';
+              $output .= '<h5 class="left"><img src="'.$aImages[2][$image]['path'].'" /><br />'.$strImageTitle.'</h5>';
             }
             $output .= '<div class="clsFPTContent">';
             if ('excerpt' == $length) {
