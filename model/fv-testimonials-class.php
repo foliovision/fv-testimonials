@@ -11,7 +11,7 @@ class FV_Testimonials
   public $iWidthThumbs = 50;
   public $strImageRoot = '';
   public $iJPGQuality = 90;
-  public $bOutputCSS = true;
+  //public $bOutputCSS = true;
   public $bUseTexy = false;
   public $aTemplates = array();
   public $aImages = array();
@@ -30,7 +30,7 @@ class FV_Testimonials
   public $strMessage = '';
 
   const OPTION_ROOT = 'FPT_root';
-  const OPTION_URL = 'FPT_url';
+  //const OPTION_URL = 'FPT_url';
   const OPTION_LARGE = 'FPT_width_large';
   const OPTION_MEDIUM = 'FPT_width_medium';
   const OPTION_SMALL = 'FPT_width_small';
@@ -47,14 +47,14 @@ class FV_Testimonials
   function FV_Testimonials()
   {
     $this->rootUrl = strval( get_option( self::OPTION_ROOT ) );
-    $this->strUrl = strval( get_option( self::OPTION_URL ) );
+    //$this->strUrl = strval( get_option( self::OPTION_URL ) );
     $this->iWidthLarge = intval( get_option( self::OPTION_LARGE ) );
     $this->iWidthMedium = intval( get_option( self::OPTION_MEDIUM ) );
     $this->iWidthSmall = intval( get_option( self::OPTION_SMALL ) );
     $this->strImageRoot = strval( get_option( self::OPTION_IMAGES ) );
 //      if (!$this->strImageRoot) $this->strImageRoot =
     $this->iJPGQuality = intval( get_option( self::OPTION_JPG ) );
-    $this->bOutputCSS = ('no' == strval( get_option( self::OPTION_CSS ) )) ? false : true;
+    //$this->bOutputCSS = ('no' == strval( get_option( self::OPTION_CSS ) )) ? false : true;
 //      $this->bUseTexy = ('yes' == strval( get_option( self::OPTION_TEXY ) )) ? true : false;
     $this->aTemplates =  get_option( self::OPTION_TEMPLATES ) ;
     if (is_serialized( $this->aTemplates )) $this->aTemplates = unserialize($this->aTemplates);
@@ -685,7 +685,11 @@ class FV_Testimonials
     $strTemplate = preg_replace( '/\[content\]/i', $strContent, $strTemplate );
     $strTemplate = preg_replace( '/\[slug\]/i', $post->post_name, $strTemplate );//post_name
     $strTemplate = preg_replace( '/\[tags\]/i', $strTags, $strTemplate );
-    $strTemplate = preg_replace( '/\[link\]/i', $this->strUrl.'#'.$post->post_name, $strTemplate );
+    //$strTemplate = preg_replace( '/\[link\]/i', $this->strUrl.'#'.$post->post_name, $strTemplate );
+    $fv_testiomonials_pro_testimonial_page = get_option('fv_testiomonials_pro_testimonial_page');
+    if ( !$fv_testiomonials_pro_testimonial_page )
+      $fv_testiomonials_pro_testimonial_page = get_option('FPT_url', '/');
+    $strTemplate = preg_replace( '/\[link\]/i', $fv_testiomonials_pro_testimonial_page.'#'.$post->post_name, $strTemplate );
     $strTemplate = preg_replace( '/\[permalink\]/i', get_permalink($post->ID), $strTemplate );
     $strTemplate = preg_replace( '/\[id\]/i', $post->ID, $strTemplate );
 
@@ -903,8 +907,8 @@ class FV_Testimonials
     }
 
     
-    $this->strUrl = preg_replace( '/\/\//', '/', preg_replace( '/\/$/', '', strval( $_POST['tboxTestimonialPage'] ) ) );
-    if( '/' != $this->strUrl[0] ) $this->strUrl = '/' . $this->strUrl;
+    //$this->strUrl = preg_replace( '/\/\//', '/', preg_replace( '/\/$/', '', strval( $_POST['tboxTestimonialPage'] ) ) );
+    //if( '/' != $this->strUrl[0] ) $this->strUrl = '/' . $this->strUrl;
     
     $this->rootUrl = preg_replace( '/\/\//', '/', preg_replace( '/\/$/', '', strval( $_POST['tboxTestimonialsRoot'] ) ) );
     if( '/' != $this->rootUrl[0] ) $this->rootUrl = '/' . $this->rootUrl;
@@ -922,28 +926,39 @@ class FV_Testimonials
     $this->iWidthMedium = intval( $_POST['tboxMedium'] );
     $this->iWidthSmall = intval( $_POST['tboxSmall'] );
     $this->iJPGQuality = intval( $_POST['tboxJPG'] );
-    $this->bOutputCSS = (isset( $_POST['chkCSS'] )) ? true : false;
+    //$this->bOutputCSS = (isset( $_POST['chkCSS'] )) ? true : false;
 
     $this->CheckOptions();
     if( $this->CheckFolders() ) $this->UpdateOption( self::OPTION_IMAGES, $this->strImageRoot );
     else $this->strImageRoot = get_option( self::OPTION_IMAGES );
   
-    if( get_option( self::OPTION_LARGE ) != $this->iWidthLarge )
+    $iWidthLargeOption = get_option( self::OPTION_LARGE );
+    if( !$iWidthLargeOption )
+      $iWidthLargeOption = 1024;
+    if( $iWidthLargeOption != $this->iWidthLarge )
       $this->strMessage .= '<p>LARGE Images recreated to new width:</p>'.FPTImage2::RecreateToNewWidth( 'large', $this->iWidthLarge );
-    if( get_option( self::OPTION_MEDIUM ) != $this->iWidthMedium )
+
+    $iWidthMediumOption = get_option( self::OPTION_MEDIUM );
+    if( !$iWidthMediumOption )
+      $iWidthMediumOption = 300;
+    if( $iWidthMediumOption != $this->iWidthMedium )
       $this->strMessage .= '<p>MEDIUM Images recreated to new width:</p>'.FPTImage2::RecreateToNewWidth( 'medium', $this->iWidthMedium );
-    if( get_option( self::OPTION_SMALL ) != $this->iWidthSmall )
+
+    $iWidthSmallOption = get_option( self::OPTION_SMALL );
+    if( !$iWidthSmallOption )
+      $iWidthSmallOption = 150;
+    if( $iWidthSmallOption != $this->iWidthSmall )
       $this->strMessage .= '<p>SMALL Images recreated to new width:</p>'.FPTImage2::RecreateToNewWidth( 'small', $this->iWidthSmall );
 
     $this->UpdateOption( self::OPTION_ROOT, $this->rootUrl );
-    $this->UpdateOption( self::OPTION_URL, $this->strUrl );
+    //$this->UpdateOption( self::OPTION_URL, $this->strUrl );
     $this->UpdateOption( self::OPTION_LARGE, $this->iWidthLarge );
     $this->UpdateOption( self::OPTION_MEDIUM, $this->iWidthMedium );
     $this->UpdateOption( self::OPTION_SMALL, $this->iWidthSmall );
     $this->UpdateOption( self::OPTION_JPG, $this->iJPGQuality );
-    $this->UpdateOption( self::OPTION_CSS, ($this->bOutputCSS) ? 'yes' : 'no' );
+    //$this->UpdateOption( self::OPTION_CSS, ($this->bOutputCSS) ? 'yes' : 'no' );
 
-    $this->strMessage .= '<p>Options updated !</p></div>';
+    $this->strMessage .= '<p>Options updated!</p></div>';
   }
   
   private function CheckFolders(){

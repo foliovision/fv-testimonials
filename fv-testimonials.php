@@ -1,9 +1,9 @@
 <?php
 /*
 Plugin Name: FV Testimonials
-Plugin URI: http://foliovision.com
+Plugin URI: https://foliovision.com/wordpress/plugins/fv-testimonials
 Description: Management system for testimonials
-Version: 1.12.8
+Version: 1.13
 Author: Foliovision
 Author URI: http://foliovision.com
 */
@@ -169,7 +169,7 @@ function fvt_filter_orderby( $title,$strOrder ) {
 
 function fv_testimonials_activate() {
   $strInstall = get_option( 'FPT_database', true );
-  $strVersion = '1.12.7';
+  $strVersion = '1.13';
   
   if( ( floatval($strInstall) >=  1.0 ) ) {
     return;

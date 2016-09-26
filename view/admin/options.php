@@ -6,7 +6,7 @@
 
 <?php if (!class_exists('FV_Testimonials_PRO_Base')):?>
 <div style="float:right; width: 200px; border:1px solid #eee; padding:20px;">
-Buy PRO version now!
+<a href="https://foliovision.com/wordpress/plugins/fv-testimonials/templates-guide">Buy PRO version now!</a>
 </div>
 <?php endif;?>
 <form action="<?php echo $_SERVER['REQUEST_URI']; ?>" method="post">
@@ -15,11 +15,12 @@ Buy PRO version now!
          <tr>
             <td class="clsTableLeft">Testimonials rewrite root: (default: /testimonial_category)</td>
             <td><input class="clsBig" type="text" name="tboxTestimonialsRoot" value="<?php if ($objFVTMain->rootUrl) echo $objFVTMain->rootUrl; else echo '/testimonial_category'; ?>" /></td>
-         </tr>        
-         <tr>
-            <td class="clsTableLeft">Path to post or page where all testimonials are inserted: </td>
-            <td><input class="clsBig" type="text" name="tboxTestimonialPage" value="<?php echo $objFVTMain->strUrl; ?>" /></td>
          </tr>
+         <?php do_action('fv_render_path_to_post_or_page_where_all_testimonials_are_inserted'); ?>
+         <?php  // this is only for old version with custom images
+         global $wpdb;
+         $bool_fvt_images = $wpdb->get_var( "SELECT meta_value FROM $wpdb->postmeta WHERE meta_key = '_fvt_images' LIMIT 1" );
+         if ( $bool_fvt_images ) : ?>
          <?php  // this is not for wpmu 
          if ( (!defined('WP_ALLOW_MULTISITE') || constant ('WP_ALLOW_MULTISITE') === false)) : ?>
          <tr>
@@ -43,15 +44,13 @@ Buy PRO version now!
             <td class="clsTableLeft">JPG Quality: </td>
             <td><input class="clsSmall" type="text" name="tboxJPG" value="<?php echo $objFVTMain->iJPGQuality; ?>" /></td>
          </tr>
-         <tr>
-            <td class="clsTableLeft">Output default CSS: </td>
-            <td><input type="checkbox" name="chkCSS" value="yes"<?php if( $objFVTMain->bOutputCSS ) echo ' checked="checked"'; ?> /></td>
-         </tr>
+         <?php endif; ?>
          <?php do_action('fv_testimonials_pro_custom'); ?>
          
       </table>
       <div class="cmdButton"><input type="submit" class="button-primary" name="cmdSaveBasic" value="Save" /></div>
       <div style="clear: both;"></div>
+      <?php if ( $bool_fvt_images ) : ?>
       <h2>Maintanance Checks</h2>
       <div class="fpt-maintanance">
          <input type="submit" name="chmod-images" value="Go" class="button" /> Make Images managable through FTP
@@ -60,6 +59,7 @@ Buy PRO version now!
          <input type="submit" name="recheck-images" value="Go" class="button" /> Recheck database with existing images
       </div>
       <div style="clear: both;"></div>
+      <?php endif; ?>
          <?php  // this is not for wpmu, multisite did not work before at all
          if ( (!defined('WP_ALLOW_MULTISITE') || constant ('WP_ALLOW_MULTISITE') === false)) : ?>
       <h2>Shortcode Conversion</h2>
@@ -71,8 +71,8 @@ Buy PRO version now!
          <!--p><span id="convert_standard"><a href="javascript:void(0);" onclick="FVTConvertShortcodesStandard()"  class="button">Convert Shortcodes in Posts, Pages & template files</a></span></p-->
          <!--p><a href="javascript:void(0);" onclick="FVTConvertShortcodesPosts()"  class="button">Convert Shortcodes in posts & pages</a><span id="found_post_ids"></span></p>
          <p><a href="javascript:void(0);" onclick="FVTFindShortcodesTheme()"  class="button">Find Shortcodes in template files</a><span id="found_theme"></span></p-->
-         <p><a href="javascript:void(0);" onclick="FVTConvertShortcodesDB()"  class="button">Convert Shortcodes elsewhere in DB</a><span id="found_db"></span> Searches for shortcodes in widgets, sniplets, and other plugins containing some content</p>
-         <p><strong>Custom coding.</strong> If you have any custom written functions or hacks, you would have to take care of thee yourself. If you think your tweak might be interesting to others, please submit your idea into our support forum.</p>
+         <p><a href="javascript:void(0);" onclick="FVTConvertShortcodesDB()"  class="button">Convert Shortcodes elsewhere in DB</a><span id="found_db"></span> Searches for old [Testimonials: ] shortcodes in widgets, sniplets, and other plugins and converts them to the new [testimonials] format.</p>
+         <p><strong>Custom coding.</strong> If you have any custom written functions or hacks, you would have to take care of these yourself. If you think your tweak might be interesting to others, please submit your idea into our <a href="https://foliovision.com/support/fv-testimonials/requests-and-feedback">support forum</a>.</p>
       </div>
       <?php endif; ?>
 </form>

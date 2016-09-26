@@ -394,19 +394,23 @@ class FPTImage2 {
 
       foreach( $aRows as $objRow ){
          $aAllImages = unserialize($objRow->meta_value);          
-         foreach($aAllImages as $iNumber => $aImages){
-            
-           $objOriginal->LoadData( $objRow->post_id, $iNumber, $aImages, 'original' );
-           try{
-              $objResized = $objOriginal->CreateResizedImage( $strSize, $iNewWidth, $iNumber, $objOriginal->iTestimonial, $objFVTMain->iJPGQuality );
-           }catch( Exception $ex ){
-              $strInfo .= '<tr><td>!! '.$objResized->aImages[$strSize]['path'].'</td><td>'.$objResized->aImages[$strSize]['width'].'px &times;</td><td>'.$objResized->aImages[$strSize]['height'].'px</td></tr></table>'.$ex->getMessage();
-              throw new Exception( $strInfo );
-           }
-           if( $bReturnInfo ) $strInfo .= '<tr><td>'.$objResized->aImages[$strSize]['path'].'</td><td>'.$objResized->aImages[$strSize]['width'].'px &times;</td><td>'.$objResized->aImages[$strSize]['height'].'px</td></tr>';
-           unset( $objOriginal );
-           $objOriginal = new FPTImage2(); 
+         if ($aAllImages) {
+            foreach($aAllImages as $iNumber => $aImages){
+               
+              $objOriginal->LoadData( $objRow->post_id, $iNumber, $aImages, 'original' );
+              try{
+                 $objResized = $objOriginal->CreateResizedImage( $strSize, $iNewWidth, $iNumber, $objOriginal->iTestimonial, $objFVTMain->iJPGQuality );
+              }catch( Exception $ex ){
+                 $strInfo .= '<tr><td>!! '.$objResized->aImages[$strSize]['path'].'</td><td>'.$objResized->aImages[$strSize]['width'].'px &times;</td><td>'.$objResized->aImages[$strSize]['height'].'px</td></tr></table>'.$ex->getMessage();
+                 throw new Exception( $strInfo );
+              }
+              if( $bReturnInfo ) $strInfo .= '<tr><td>'.$objResized->aImages[$strSize]['path'].'</td><td>'.$objResized->aImages[$strSize]['width'].'px &times;</td><td>'.$objResized->aImages[$strSize]['height'].'px</td></tr>';
+              unset( $objOriginal );
+              $objOriginal = new FPTImage2(); 
+            }
          }
+         else
+            $strInfo .= '<tr><td><i>There are no images.</i></td></tr>';
       }
 
       if( $bReturnInfo ) $strInfo .= '</table>';
