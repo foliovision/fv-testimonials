@@ -842,8 +842,14 @@ class FV_Testimonials
       //if( isset( $_POST['uploadTestimonial'] ) && $_POST['tboxTitle'] && $_POST['txtText'] ) $this->UploadTestimonial();
 
       if( is_admin() && false !== strpos( $_SERVER['REQUEST_URI'], 'edit.php?post_type=testimonial&page=fv-testimonial-options2' ) ){
-        if( isset( $_POST['cmdSaveBasic'] ) || isset( $_POST['chmod-images'] ) || isset( $_POST['recheck-images'] ) || isset( $_POST['restore-order'] ) ) $this->SaveOptions();
-        if( isset( $_POST['convert-categories'] )) $this->SaveOptions();
+        if( isset( $_POST['cmdSaveBasic'] ) || isset( $_POST['chmod-images'] ) || isset( $_POST['recheck-images'] ) || isset( $_POST['restore-order'] ) ) {
+          $this->SaveOptions();
+          update_option('fv_testimonials_settings_have_changed', true);
+        }
+        if( isset( $_POST['convert-categories'] )) {
+          $this->SaveOptions();
+          update_option('fv_testimonials_settings_have_changed', true);
+        }
 
 /*            if( isset( $_GET['ajax'] ) ) $this->HandleAjax();
         if( isset( $_POST['addTestimonial'] ) ) $this->UploadTestimonial( false );

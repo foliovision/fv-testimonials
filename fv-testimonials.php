@@ -22,6 +22,14 @@ function wpdocs_flush_rewrites() {
     flush_rewrite_rules();
 }
 
+add_action('admin_init', 'fv_testimonials_settings_flush_rewrite');
+function fv_testimonials_settings_flush_rewrite() {
+    if ( get_option('fv_testimonials_settings_have_changed') == true ) {
+        flush_rewrite_rules();
+        update_option('fv_testimonials_settings_have_changed', false);
+    }
+}
+
 if( !defined('FVTESTIMONIALS_ROOT') ) {
   define( 'FVTESTIMONIALS_ROOT', dirname( __FILE__ ) . '/' );
 }

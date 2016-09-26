@@ -13,8 +13,8 @@ Buy PRO version now!
       <table>
          <?php do_action('fv_render_nicename'); ?>
          <tr>
-            <td class="clsTableLeft">Testimonials rewrite root: </td>
-            <td><input class="clsBig" type="text" name="tboxTestimonialsRoot" value="<?php echo $objFVTMain->rootUrl; ?>" /></td>
+            <td class="clsTableLeft">Testimonials rewrite root: (default: /testimonial_category)</td>
+            <td><input class="clsBig" type="text" name="tboxTestimonialsRoot" value="<?php if ($objFVTMain->rootUrl) echo $objFVTMain->rootUrl; else echo '/testimonial_category'; ?>" /></td>
          </tr>        
          <tr>
             <td class="clsTableLeft">Path to post or page where all testimonials are inserted: </td>
