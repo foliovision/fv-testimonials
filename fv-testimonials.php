@@ -8,6 +8,20 @@ Author: Foliovision
 Author URI: http://foliovision.com
 */
 
+register_deactivation_hook( __FILE__, 'flush_rewrite_rules' );
+register_activation_hook( __FILE__, 'wpdocs_flush_rewrites' );
+ 
+ 
+/**
+ * Flush rewrite rules on activation
+ */
+function wpdocs_flush_rewrites() {
+    // call your CPT registration function here (it should also be hooked into 'init')
+    //wpdocs_custom_post_types_registration();
+	 fvt_custom_init();
+    flush_rewrite_rules();
+}
+
 if( !defined('FVTESTIMONIALS_ROOT') ) {
   define( 'FVTESTIMONIALS_ROOT', dirname( __FILE__ ) . '/' );
 }
