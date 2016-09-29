@@ -132,7 +132,8 @@ class FV_Testimonials
     }
     $args = array('post_type' => 'testimonial');
     if( !$aInclude || !empty( $category ) || ($show == 'all') || ($show == 'featured') ) {
-      $image = 'large';
+      if ( !$image )
+        $image = 'large';
       if( $category ) { 
         $aCategories = explode(',',$category);
         $aCatSlugs = array();
@@ -309,7 +310,8 @@ class FV_Testimonials
     }
     
     if ($aInclude){
-      $image = 'original';
+      if ( !$image )
+        $image = 'original';
       $post_query = new WP_Query( array( 'post_type' => 'testimonial', 'post__in' => $aInclude ) );
       
       if( $post_query->have_posts() ) {

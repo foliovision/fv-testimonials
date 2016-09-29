@@ -62,7 +62,7 @@ For more detailed options for shortcode refer to our manual at https://foliovisi
 = 1.12 =
 * Fixed few performance issues
 
-= 1.11
+= 1.11 =
 * Fixed parsing templates
 
 = 1.10 = 
