@@ -12,7 +12,7 @@ add_action( 'add_meta_boxes', 'fv_testimonials_custom_editing_metabox');
 add_filter( 'manage_edit-testimonial_columns', 'fvtpro_edit_testimonial_columns' ) ;
 add_action( 'manage_testimonial_posts_custom_column', 'fvtpro_manage_testimonial_columns', 10, 2 );
 add_filter( 'post_updated_messages', 'fv_testimonials_updated_messages');
-add_action( 'save_post', 'fv_testimonials_save_testimonial' );
+add_action( 'edit_post', 'fv_testimonials_save_testimonial' );
 
 
 
@@ -44,8 +44,8 @@ function fvt_testimonials_submenu_page_callback_options2() {
 }
 
  function fvt_testimonials_submenu_page_callback_cats() {
-      global $objFVTMain;
-      $aCategories = get_terms('testimonial_category', array('hide_empty'=>0));
+    global $objFVTMain;
+    $aCategories = get_terms('testimonial_category', array('hide_empty'=>0));
    	require( FVTESTIMONIALS_ROOT . 'view/admin/by-category.php' );
    }
    
@@ -64,22 +64,29 @@ function fv_testimonials_custom_editing_metabox_display() {
     echo "> Make this testimonial featured</label></p>";
     $upload_dir = wp_upload_dir();
    
-   if (defined('WP_ALLOW_MULTISITE') &&  (constant ('WP_ALLOW_MULTISITE') === true)) $strPath = str_replace($_SERVER['DOCUMENT_ROOT'],'',$upload_dir['basedir']).'/testimonials';
-   else $strPath =  $objFVTMain->strImageRoot;
+    if (defined('WP_ALLOW_MULTISITE') &&  (constant ('WP_ALLOW_MULTISITE') === true)) {
+      $strPath = trailingslashit($upload_dir['baseurl']).'testimonials';
+    } else {
+      $strPath =  $objFVTMain->strImageRoot;
+    }
 	
-			
-    echo '<table>';
-    if ($aImages && $aImages[1])
-       echo '<tr><td>Main image:</td><td><input type="file" name="fileImage" id="fileImage" /></td><td>Image Title: <input type="text" name="fileTitle" id="fileTitle" value="'.$aImages[1]['original']['name'].'"/></td><td>';
-    else echo '<tr><td>Main image:</td><td><input type="file" name="fileImage" id="fileImage" /></td><td>Image Title: <input type="text" name="fileTitle" id="fileTitle" value=""/></td><td>';
-    if ( $aImages && $aImages[1] ) echo '<span id="fvt-image-1">Image present: <img src="'.$strPath.$aImages[1]['small']['path'].'" style="max-width: 50px; max-height:50px;"/> <input type="button" value="Delete" class="fpt-del-button" onclick="FVTDeleteImage( '.$post_ID.', 1 )" /></span>';
-    echo'</td></tr>';      
-    if ($aImages && $aImages[2])
-      echo '<tr><td>Second Image:</td><td><input type="file" name="fileImage2" id="fileImage2" /></td><td>Image Title: <input type="text" name="fileTitle2" id="fileTitle2" value="'.$aImages[2]['original']['name'].'" /></td><td>';
-    else echo '<tr><td>Second Image:</td><td><input type="file" name="fileImage2" id="fileImage2" /></td><td>Image Title: <input type="text" name="fileTitle2" id="fileTitle2" value="" /></td><td>';
-    if ( $aImages && $aImages[2] ) echo '<span id="fvt-image-2">Image present: <img src="'.$strPath.$aImages[2]['small']['path'].'" style="max-width: 50px; max-height:50px;"/><input type="button" value="Delete" class="fpt-del-button" onclick="FVTDeleteImage( '.$post_ID.', 2 )" /></span>';
-    echo'</td></tr>';      
-    echo '</table>';      
+		if( !empty($aImages) ){
+      echo '<table>';
+      if ($aImages && $aImages[1])
+         echo '<tr><td>Main image:</td><td><input type="file" name="fileImage" id="fileImage" /></td><td>Image Title: <input type="text" name="fileTitle" id="fileTitle" value="'.$aImages[1]['original']['name'].'"/></td><td>';
+      else echo '<tr><td>Main image:</td><td><input type="file" name="fileImage" id="fileImage" /></td><td>Image Title: <input type="text" name="fileTitle" id="fileTitle" value=""/></td><td>';
+      if ( $aImages && $aImages[1] ) echo '<span id="fvt-image-1">Image present: <img src="'.$strPath.$aImages[1]['small']['path'].'" style="max-width: 50px; max-height:50px;"/> <input type="button" value="Delete" class="fpt-del-button" onclick="FVTDeleteImage( '.$post_ID.', 1 )" /></span>';
+      echo'</td></tr>';      
+      if ($aImages && $aImages[2])
+        echo '<tr><td>Second Image:</td><td><input type="file" name="fileImage2" id="fileImage2" /></td><td>Image Title: <input type="text" name="fileTitle2" id="fileTitle2" value="'.$aImages[2]['original']['name'].'" /></td><td>';
+      else echo '<tr><td>Second Image:</td><td><input type="file" name="fileImage2" id="fileImage2" /></td><td>Image Title: <input type="text" name="fileTitle2" id="fileTitle2" value="" /></td><td>';
+      if ( $aImages && $aImages[2] ) echo '<span id="fvt-image-2">Image present: <img src="'.$strPath.$aImages[2]['small']['path'].'" style="max-width: 50px; max-height:50px;"/><input type="button" value="Delete" class="fpt-del-button" onclick="FVTDeleteImage( '.$post_ID.', 2 )" /></span>';
+      echo'</td></tr>';
+      echo '</table>';
+      echo "<p>You are using legacy function for testimonial images. We strongly recoment to <strong>use Featured Image</strong> instead.</p>";
+    }
+
+    do_action('fv_testimonial_pro_post_custom');
 }
 
 function fvtpro_edit_testimonial_columns( $columns ) {
@@ -131,21 +138,45 @@ function fvtpro_manage_testimonial_columns( $column, $post_id ) {
 			}
 			else _e( 'No Tags' );
 			break;
-    case 'testimonial_image' :
-	      $aImages = get_post_meta($post_id, '_fvt_images',true);
-	      $upload_dir = wp_upload_dir();
-         if (defined('WP_ALLOW_MULTISITE') &&  (constant ('WP_ALLOW_MULTISITE') === true)) $strPath = str_replace($_SERVER['DOCUMENT_ROOT'],'',$upload_dir['basedir']).'/testimonials';
-         else $strPath =  $objFVTMain->strImageRoot;
-			if ( !empty( $aImages[1] ) ) {
-				$out = "<img src='".$strPath.$aImages[1]['thumbs']['path']."' style='max-width:50px; max-height:50px;' />";
-			}
-			else if ( !empty( $aImages[2] ) ) {
-				$out = "<img src='".$strPath.$aImages[2]['thumbs']['path']."' style='max-width:50px; max-height:50px;' />";
-			}
-			else $out="";
-			echo $out;
-			break;
-    case 'testimonial_featured' :
+      case 'testimonial_image' :
+         $aImages = get_post_meta($post_id, '_fvt_images',true);
+         $upload_dir = wp_upload_dir();
+         $strBase = '';
+
+         if (defined('WP_ALLOW_MULTISITE') &&  (constant ('WP_ALLOW_MULTISITE') === true)){
+            $strPath = trailingslashit($upload_dir['baseurl']).'testimonials';
+            $strBase = $upload_dir['basedir'] . '/testimonials';
+         }else{
+            $strPath = $objFVTMain->strImageRoot;
+            $strBase = $_SERVER['DOCUMENT_ROOT'] . $objFVTMain->strImageRoot;
+         }
+
+         if( !empty( $aImages[1] ) ){
+            $aData = getimagesize( $strBase . $aImages[1]['original']['path'] );
+            $strTitle = 'full image';
+            if( $aData )
+               $strTitle = $aData[0] . ' x ' . $aData[1];
+
+            $out = '<a href="'.$strPath.$aImages[1]['original']['path'].'" target="_blank" title="'.$strTitle.'">';
+            $out .="<img src='".$strPath.$aImages[1]['thumbs']['path']."' style='max-width:50px; max-height:50px;' />";
+            $out .= "</a>";
+         }else if( !empty( $aImages[2] ) ){
+            $aData = getimagesize( $strBase . $aImages[2]['original']['path'] );
+            $strTitle = 'full image';
+            if( $aData )
+               $strTitle = $aData[0] . ' x ' . $aData[1];
+
+            $out = '<a href="'.$strPath.$aImages[2]['original']['path'].'" target="_blank" title="'.$strTitle.'">';
+            $out .= "<img src='".$strPath.$aImages[2]['thumbs']['path']."' style='max-width:50px; max-height:50px;' />";
+            $out .= "</a>";
+         }else {
+            $out = get_the_post_thumbnail( $post_id,  'thumbnail' );
+         }
+
+         echo $out;
+         break;
+
+      case 'testimonial_featured' :
 	      $strFeatured = get_post_meta($post_id, '_fvt_featured',true);
 			if ( $strFeatured == '1' ) {
 				$out = "Featured";
@@ -173,7 +204,7 @@ function custom_backend_columns() {
 		 </style>';
 }
 
-add_action('admin_head', 'custom_backend_columns');
+//add_action('admin_head', 'custom_backend_columns');
 
 function fv_testimonials_updated_messages( $messages ) {
   global $post, $post_ID;
@@ -198,11 +229,17 @@ function fv_testimonials_updated_messages( $messages ) {
   return $messages;
 }
 function fv_testimonials_save_testimonial($post_id) {
-   global $post;
-   global $objFVTMain;
-   $upload_dir = wp_upload_dir(); 
-   if ($_POST['featured_testimonial']=='on') update_post_meta($post_id, '_fvt_featured', 1);
-   else update_post_meta($post_id, '_fvt_featured', 0);
+  global $post;
+  global $objFVTMain;
+  $upload_dir = wp_upload_dir(); 
+  
+  do_action('fv_testimonial_pro_save_testimonial');
+  
+  if ( isset( $_POST[ 'featured_testimonial' ] ) && ( $_POST[ 'featured_testimonial' ] == 'on' ) ) {
+      update_post_meta( $post_id, '_fvt_featured', 1 );
+  }
+  
+  else update_post_meta($post_id, '_fvt_featured', 0);
 
    if (!$post->post_title)
       $strPostSlug = $post->ID;

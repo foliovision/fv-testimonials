@@ -63,7 +63,7 @@
                   'post_type' => 'testimonial',
                   'post_status' => array('publish','draft'),
                   'posts_per_page' => -1,
-                  'caller_get_posts'=> 1,
+                  'ignore_sticky_posts'=> 1,
                   'order'=>'ASC'
                   );
       
@@ -73,16 +73,19 @@
       echo "<ul id='sortable-0' class='connectedSortable ui-helper-reset'>";
       if( $my_query->have_posts() ) {
          $aOutputs = array(); $strOutput = '';
-         $aCustomOrder = $aOrder[0];
+         if ( isset( $aOrder[0] ) ) {
+            $aCustomOrder = $aOrder[0];
+         }
+
          while ($my_query->have_posts()) : $my_query->the_post(); 
             $output = '';
             $id = get_the_ID();
             $output .='<li class="cat-0" id="'.$id.'"><a href="./post.php?post='.$id.'&action=edit">'. get_the_title() .'</a></li>'; 
 
             $iIndex = false;
-            if (!$aCustomOrder) $aCustomOrder = array();
+            if ( ! isset( $aCustomOrder ) ) $aCustomOrder = array();
             if (!empty($aCustomOrder)) $iIndex = array_search($id, $aCustomOrder);
-            if (($iIndex  === false) && is_array($aOutputs)&& is_array($aCustomOrder)) $iIndex = max(max(array_keys($aCustomOrder)),max(array_keys($aOutputs)))+1;
+            //if (($iIndex  === false) && is_array($aOutputs)&& is_array($aCustomOrder)) $iIndex = max(max(array_keys($aCustomOrder)),max(array_keys($aOutputs)))+1;
             if (($iIndex  === false) && is_array($aOutputs)&& is_array($aCustomOrder) && !empty($aCustomOrder)) $iIndex = max(max(array_keys($aCustomOrder)),max(array_keys($aOutputs)))+1;
             else if (($iIndex  === false) && !empty($aOutputs)) $iIndex = max(array_keys($aOutputs))+1;
             else if ($iIndex  === false) $iIndex = 0;
@@ -129,7 +132,7 @@
                  $iIndex = false;
                   if (!$aCustomOrder) $aCustomOrder = array();
                   if (!empty($aCustomOrder)) $iIndex = array_search($id, $aCustomOrder);
-                  if (($iIndex  === false) && is_array($aOutputs)&& is_array($aCustomOrder)) $iIndex = max(max(array_keys($aCustomOrder)),max(array_keys($aOutputs)))+1;
+                  //if (($iIndex  === false) && is_array($aOutputs)&& is_array($aCustomOrder)) $iIndex = max(max(array_keys($aCustomOrder)),max(array_keys($aOutputs)))+1;
                   if (($iIndex  === false) && is_array($aOutputs)&& is_array($aCustomOrder) && !empty($aCustomOrder)) $iIndex = max(max(array_keys($aCustomOrder)),max(array_keys($aOutputs)))+1;
                   else if (($iIndex  === false) && !empty($aOutputs)) $iIndex = max(array_keys($aOutputs))+1;
                   else if ($iIndex  === false) $iIndex = 0;
