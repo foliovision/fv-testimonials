@@ -9,13 +9,13 @@ Author URI: http://foliovision.com
 */
 
 register_deactivation_hook( __FILE__, 'flush_rewrite_rules' );
-register_activation_hook( __FILE__, 'wpdocs_flush_rewrites' );
+register_activation_hook( __FILE__, 'fv_testimonials_flush_rewrite_rules' );
  
  
 /**
  * Flush rewrite rules on activation
  */
-function wpdocs_flush_rewrites() {
+function fv_testimonials_flush_rewrite_rules() {
     // call your CPT registration function here (it should also be hooked into 'init')
     //wpdocs_custom_post_types_registration();
 	 fvt_custom_init();
