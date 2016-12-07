@@ -204,7 +204,7 @@ div.fpt-maintanance input.button {
 }
 
 ul.fpt-templates {
-   margin: 20px;
+   margin: 20px 0;
    font-size: 15px;
 }
 
@@ -229,4 +229,11 @@ input.fpt-del-button {
 }
 ul.fpt-templates textarea{
    line-height : 1.4em;  
+}
+#formTemplates label {
+	text-align: right;
+	display: block;
+}
+.submit-area {
+	padding: 0 0 24px 128px;
 }
