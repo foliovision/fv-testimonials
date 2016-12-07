@@ -60,3 +60,68 @@ h5.byline {
    margin: 0;
    padding: 0;
 }
+
+/* 3 default templates */
+
+.fv-testimonials-shortcode .fvtestimonial {
+	display: block;
+	width: 100%;
+	margin: 0 0 24px;
+}
+.fv-testimonials-shortcode .fvtestimonial.one-third {
+	display: inline-block;
+	margin: 0 0 24px 2.564102564102564%;
+	width: 31.623931623931625%;
+	float: left;
+}
+.fv-testimonials-shortcode .fvtestimonial.one-third:first-child {
+	margin-left: 0;
+}
+.fv-testimonials-shortcode .fvtestimonial.one-third a,
+.fv-testimonials-shortcode .fvtestimonial.one-third a:hover {
+	color: #000;
+	text-decoration: none;
+}
+.fv-testimonials-shortcode .fvtestimonial.fvt-sidebar {
+	display: block;
+	width: 100%;
+	margin-bottom: 24px;
+}
+.fvt-main {
+	clear: both;	
+	margin-bottom: 24px;
+	padding-bottom: 2px;
+}
+.fvt-main:before,
+.fvt-main:after {
+	content: "";
+	display: table;
+}
+.fvt-main:after {
+	clear: both;
+}
+.fvt-main .fvt-thumb {
+	float: left;
+	width: 30%;
+}
+.fvt-main .fvt-content {
+	float: right;
+	width: 68%;
+}
+
+@media only screen and (max-width: 800px) {
+	.fv-testimonials-shortcode .fvtestimonial.one-third {
+		width: 100%;
+		float: none;
+		margin: 0 0 24px;
+		display: block;
+	}
+}
+
+@media only screen and (max-width: 600px) {
+	.fvt-main .fvt-thumb,
+	.fvt-main .fvt-content {
+		float: none;
+		width: 100%;
+	}
+}
