@@ -6,11 +6,20 @@
 	/* Vertical Tabs
 ----------------------------------*/
 /*.ui-tabs-vertical { width: 55em; }*/ 
-.ui-tabs-vertical .ui-tabs-nav { padding: .2em .1em .2em .2em; float: left; width: 12em; }
-.ui-tabs-vertical .ui-tabs-nav li { clear: left; width: 100%; border-bottom-width: 1px !important; border-right-width: 0 !important; margin: 0 -1px .2em 0; }
-.ui-tabs-vertical .ui-tabs-nav li a { display:block; }
+.post-type-testimonial .ui-widget-content { background: none; background-color: transparent; border: none; }
+.ui-tabs-vertical .ui-tabs-nav { background: #fff; border: none; }
+.post-type-testimonial .ui-tabs-nav .ui-state-default, .post-type-testimonial .ui-tabs-nav .ui-state-active { background: #fff; border: none; }
+.ui-tabs-vertical .ui-tabs-nav { padding: .2em .1em .2em .2em; float: left; width: 18em; }
+.ui-tabs-vertical .ui-tabs-nav li, .ui-tabs .ui-tabs-nav li.ui-tabs-active { float: none; margin: 0 0 .2em 0; padding: 0; white-space: normal; }
+.ui-tabs-vertical .ui-tabs-nav li a { display: block; }
+.ui-state-hover, .ui-widget-content .ui-state-hover, .ui-state-focus, .ui-widget-content .ui-state-focus { outline: none; border: none; }
+.ui-state-hover a, .ui-widget-content .ui-state-hover, .ui-state-focus a, .ui-widget-content .ui-state-focus a { box-shadow: none; }
+.ui-tabs .ui-tabs-nav .ui-tabs-anchor { float: none; }
 .ui-tabs-vertical .ui-tabs-nav li.ui-tabs-selected { padding-bottom: 0; padding-right: .1em; border-right-width: 1px; border-right-width: 1px; }
-.ui-tabs-vertical .ui-tabs-panel { padding: 1em; float: left;}
+.ui-tabs-vertical .ui-tabs-panel { padding: 0 1em; float: left; }
+.post-type-testimonial .connectedSortable li { cursor: move; background: #fff; border: 1px solid #fff; border-radius: 4px; }
+.post-type-testimonial .connectedSortable li:hover { border: 1px solid #e5e5e5; }
+.post-type-testimonial .connectedSortable li a { text-decoration: none; }
 	</style>
 
 	<script>
@@ -52,7 +61,7 @@
          if($tax_term->parent == 0){
             echo "<li ".$style."><a href='#tabs-".$tax_term->slug."'>".$tax_term->name."</a></li>";
             foreach ($aCategories  as $tax_t){
-               if ($tax_t->parent == $tax_term->term_id) echo "<li style='margin-left: 2em; width:10em;'><a href='#tabs-".$tax_t->slug."'>".$tax_t->name."</a></li>";
+               if ($tax_t->parent == $tax_term->term_id) echo "<li style='margin-left: 1.2em;'><a href='#tabs-".$tax_t->slug."'>".$tax_t->name."</a></li>";
             }
          }
       }
@@ -149,7 +158,7 @@
             wp_reset_query();
             if (empty($strOutput)) echo '<p>No testimonials in this category</p>';
             else{ 
-               echo "<span class='button-primary' style='float:right; margin: 10px' onclick=\"FVTSaveOrder('".$tax_term->slug."', ".$tax_term->term_id.")\" id='save-".$tax_term->slug."'>Save Order</span>";
+               echo "<span class='button-primary' style='float:right; margin: 12px 6px' onclick=\"FVTSaveOrder('".$tax_term->slug."', ".$tax_term->term_id.")\" id='save-".$tax_term->slug."'>Save Order</span>";
             }
             echo "</div>";
          }
